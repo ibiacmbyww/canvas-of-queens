@@ -1,0 +1,30 @@
+.App {
+  position: relative;
+  overflow: show;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  .controls {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 20vw;
+    height: 60vh;
+    background: #F2EFDC;
+    padding: 1rem;
+    border: 0.5rem solid darken($color: #F2EFDC, $amount: 50);
+
+    .actors-list {
+      li {
+        list-style-type: none;
+
+        &.empty {
+          font-style: italic;
+        }
+      }
+    }
+  }
+
+  .actor {
+    position: absolute;
+    border-radius: 100%;
+  }
+}
