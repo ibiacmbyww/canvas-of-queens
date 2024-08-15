@@ -51,41 +51,62 @@ function App() {
     // setViewOffsetX(window.scrollX)
     // setViewOffsetY(window.scrollY)
   }
-
-  useEffect(() => {
-    const imgElement = bg1Ref.current;
-    if (imgElement) {
-      imgElement.addEventListener('wheel', bgScrollHandler, { passive: false });
-      setBG1WidthAtDefaultZoom(imgElement.clientWidth)
-    }
-
-    return () => {
-      if (imgElement) {
-        imgElement.removeEventListener('wheel', bgScrollHandler);
+  const handleWheel = function(this: HTMLImageElement, ev: Event): void {
+    ev.preventDefault();
+    const event = ev;
+    debugger;
+    if ("deltaY" in ev) {
+      //@ts-ignore-next-line
+      if (event.deltaY < 0) {
+        //is scroll UP
+        if ((zoomLevel + zoomIncrementBy) <= maxZoomLevel) {
+          setZoomLevel((z) => z + zoomIncrementBy)
+        }
+      } else {
+        //is scroll DOWN
+        if ((zoomLevel - zoomIncrementBy) >= minZoomLevel) {
+          setZoomLevel((z) => z - zoomIncrementBy)
+        }
       }
     }
-  }, []);
+  };
 
-  useEffect(
-    () => {
-      if (bg1Ref.current && !bg1Initialised) {
-        debugger;
-        const windowWidth = window.innerWidth
-        const imgWidth = bg1Ref.current?.clientWidth ?? 0
-        setZoomLevel(1)
-        const gridColumnsShown = windowWidth / fiveFtInPx;
-        const zoomLevelWhenThreeGridColumnsShown = parseFloat((1/(3/gridColumnsShown)).toPrecision(3))
-        setMaxZoomLevel(zoomLevelWhenThreeGridColumnsShown)
-        const imgWidthInColumns = imgWidth / fiveFtInPx
-        const zoomLevelWhenAllGridColumnsShown = parseFloat((1/(imgWidthInColumns/gridColumnsShown)).toPrecision(3))
-        setMinZoomLevel(zoomLevelWhenAllGridColumnsShown)
-        const zoomTick = (zoomLevelWhenThreeGridColumnsShown - zoomLevelWhenAllGridColumnsShown) / zoomLevelSteps
-        setZoomIncrementBy(zoomTick)
-        setBG1Initialised(true)
-      }
-    },
-    [bg1Ref, fiveFtInPx, bg1Initialised, zoomLevel, zoomLevelSteps]
-  )
+  const useNonPassiveWheel = (handler: (this: HTMLImageElement, event: Event) => void) => {
+    const elementRef = useRef<HTMLImageElement>(null);
+  
+    useEffect(
+      () => {
+        const element = elementRef.current;
+        if (element) {
+          debugger;
+          const windowWidth = window.innerWidth
+          const imgWidth = element.clientWidth ?? 0
+          setZoomLevel(1)
+          const gridColumnsShown = windowWidth / fiveFtInPx;
+          const zoomLevelWhenThreeGridColumnsShown = parseFloat((1/(3/gridColumnsShown)).toPrecision(3))
+          setMaxZoomLevel(zoomLevelWhenThreeGridColumnsShown)
+          const imgWidthInColumns = imgWidth / fiveFtInPx
+          const zoomLevelWhenAllGridColumnsShown = parseFloat((1/(imgWidthInColumns/gridColumnsShown)).toPrecision(3))
+          setMinZoomLevel(zoomLevelWhenAllGridColumnsShown)
+          const zoomTick = (zoomLevelWhenThreeGridColumnsShown - zoomLevelWhenAllGridColumnsShown) / zoomLevelSteps
+          setZoomIncrementBy(zoomTick)
+          setBG1Initialised(true)
+          element.removeEventListener('wheel', handler);
+          element.addEventListener('wheel', handler, { passive: false });
+        }
+        return () => {
+          if (element) {
+            element.removeEventListener('wheel', handler);
+          }
+        };
+      },
+      [handler]
+    )
+  
+    return elementRef;
+  }
+
+  const bgRef = useNonPassiveWheel(handleWheel);
 
   const bgMouseDown: MouseEventHandler = (e) => {
     if (e.button === 0) {
@@ -124,7 +145,7 @@ function App() {
   debugger;
   return (
     <div className="App">
-      <img src={bg1} onMouseDown={bgMouseDown} onMouseUp={bgMouseUp} onMouseMove={bgMouseMove} ref={bg1Ref} style={{minWidth: `${(bg1WidthAtDefaultZoom ?? window.innerWidth) * zoomLevel}px`}} />
+      <img src={bg1} onMouseDown={bgMouseDown} onMouseUp={bgMouseUp} onMouseMove={bgMouseMove} ref={bgRef} style={{minWidth: `${(bg1WidthAtDefaultZoom ?? window.innerWidth) * zoomLevel}px`}} />
       {actors.map(
         (actor) => {
           return <div className="actor"
