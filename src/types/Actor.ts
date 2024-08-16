@@ -7,7 +7,6 @@ type Actor = {
   color: string;
   moveFt: number;
   isPlaced: boolean;
-  renaming: boolean;
   highlighted: boolean;
 }
 

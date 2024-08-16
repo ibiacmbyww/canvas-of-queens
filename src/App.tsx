@@ -4,6 +4,7 @@ import './App.scss';
 import { MouseEventHandler } from 'react';
 import Actor from './types/Actor';
 import Colors from './types/Colors';
+import EditCharactersModal from './components/EditCharactersModal/EditCharactersModal';
 
 function App() {
   const [nextID, setNextID] = useState<number>(-1)
@@ -18,6 +19,7 @@ function App() {
   const [scrollX, setScrollX] = useState<number>(0)
   const [scrollY, setScrollY] = useState<number>(0)
   const [bg1WidthAtDefaultZoom, setBG1WidthAtDefaultZoom] = useState<number>(0)
+  // const [bg1HeightAtDefaultZoom, setBG1HeightAtDefaultZoom] = useState<number>(0)
   // const [leftMouseDown, setLeftMouseDown] = useState<boolean>(false)
   // const [middleMouseDown, setMiddleMouseDown] = useState<boolean>(false)
   // const [rightMouseDown, setRightMouseDown] = useState<boolean>(false)
@@ -27,21 +29,35 @@ function App() {
     setNextID(idPlusOne)
     return idPlusOne
   }
-  
-  const [actors, setActors] = useState<Actor[]>([
-    {
-      id: newID(),
-      displayName: "Alicia",
-      playerName: "Alice",
-      posX: 1800,
-      posY: 600,
-      color: Colors.Purple,
-      moveFt: 25,
-      isPlaced: false,
-      renaming: false,
-      highlighted: false
+
+  const [actors, setActors] = useState<Actor[]>(
+    () => {
+      return [
+        {
+          id: 0,
+          displayName: "Alicia",
+          playerName: "Alice",
+          color: Colors.Purple,
+          moveFt: 25,
+          isPlaced: true,
+          posX: 1800,
+          posY: 600,
+          highlighted: false
+        },
+        {
+          id: 1,
+          displayName: "Lt. Silbok",
+          playerName: "GM",
+          color: Colors.Red,
+          moveFt: 35,
+          isPlaced: true,
+          posX: 1600,
+          posY: 200,
+          highlighted: false
+        }
+      ]
     }
-  ])
+  )
   const bgRef = useRef<HTMLImageElement>(null)
 
   const wheelEventHandler = useCallback(
@@ -108,6 +124,7 @@ function App() {
     if (element) {
       const windowWidth = window.innerWidth
       const imgWidth = element.naturalWidth ?? 0
+      const imgHeight = element.naturalHeight ?? 0
       setBG1WidthAtDefaultZoom(imgWidth)
       setZoomLevel(1)
       const gridColumnsShown = windowWidth / fiveFtInPx;
@@ -121,6 +138,7 @@ function App() {
 
   return (
     <div className="App">
+      <EditCharactersModal open={true} data={actors} dataSetter={setActors} map={bgRef} />
       <img
         alt=""
         src={bg1}
@@ -131,7 +149,8 @@ function App() {
             maxWidth: `${(bg1WidthAtDefaultZoom ?? window.innerWidth) * zoomLevel}px`
           }
         }
-        onLoad={bgLoadedHandler} />
+        onLoad={bgLoadedHandler}
+      />
       {actors.map(
         (actor) => {
           return <div className={`actor${actor.highlighted ? " highlighted" : ""}`}
@@ -184,35 +203,7 @@ function App() {
                         }}
                       >
                         <span className='blob' style={{background: actor.color}}></span>
-                        <input
-                          type="text"
-                          defaultValue={actor.displayName}
-                          disabled={!actor.renaming}
-                          onChange={(e) => {
-                            setActors((prevActors) => {
-                              return prevActors.map((prevActor) => {
-                                if (prevActor.id === actor.id) {
-                                  return {
-                                    ...prevActor,
-                                    displayName: e.currentTarget.value
-                                  }
-                                }
-                                return prevActor;
-                              });
-                            })
-                          }}
-                        />
-                        <button className='lock' onClick={() => {
-                          debugger;
-                          setActors((prevActors) => {
-                            return prevActors.map((prevActor) => {
-                              if (prevActor.id === actor.id) {
-                                return { ...prevActor, renaming: !prevActor.renaming };
-                              }
-                              return prevActor;
-                            });
-                          })
-                        }}>{actor.renaming ? "🔒" : "🔓"}</button>
+                        <span className="name">{actor.displayName}</span>
                         <small>{actor.playerName}</small>
                       </li>
                     )
@@ -223,26 +214,9 @@ function App() {
           </ul>
           <button
             onClick={() => {
-              setActors(
-                (prevActors) => {
-                  const newActor = {
-                    id: newID(),
-                    displayName: "",
-                    playerName: "",
-                    posX: 1800,
-                    posY: 600,
-                    color: "pink",
-                    moveFt: 25,
-                    isPlaced: false,
-                    renaming: false,
-                    highlighted: false
-                  }
-                  return [...prevActors, newActor]
-                }
-              )
             }}
           >
-            ➕ Add Character
+            ✒️ Edit Characters
           </button>
         </div>
       </div>
