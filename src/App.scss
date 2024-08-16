@@ -3,14 +3,14 @@
   overflow: show;
   font-family: Georgia, 'Times New Roman', Times, serif;
   .controls {
-    position: absolute;
+    position: fixed;
     top: 1rem;
     left: 1rem;
     width: 20vw;
     height: 60vh;
     background: #F2EFDC;
     padding: 1rem;
-    border: 0.5rem solid darken($color: #F2EFDC, $amount: 50);
+    border: 0.25rem solid darken($color: #F2EFDC, $amount: 50);
 
     .actors-list {
       li {

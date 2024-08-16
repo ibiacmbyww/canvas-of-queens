@@ -13,7 +13,8 @@ function App() {
   const [maxZoomLevel, setMaxZoomLevel] = useState<number>(1)
   const [zoomLevelSteps] = useState<number>(30)
   // const [bg1Initialised, setBG1Initialised] = useState<boolean>(false)
-  const [zoomIncrementBy, setZoomIncrementBy] = useState<number>(0)
+  const [showControls, setShowControls] = useState<boolean>(true)
+  const [zoomIncrementBy] = useState<number>(0.1)
   const [scrollX, setScrollX] = useState<number>(0)
   const [scrollY, setScrollY] = useState<number>(0)
   const [bg1WidthAtDefaultZoom, setBG1WidthAtDefaultZoom] = useState<number>(0)
@@ -30,26 +31,7 @@ function App() {
     }
   ])
 
-  const bgRef = useRef<HTMLImageElement>(null);
-
-  function bgLoadedHandler() {
-    const element = bgRef.current;
-    if (element) {
-      const windowWidth = window.innerWidth
-      const imgWidth = element.naturalWidth ?? 0
-      setBG1WidthAtDefaultZoom(imgWidth)
-      setZoomLevel(1)
-      const gridColumnsShown = windowWidth / fiveFtInPx;
-      const zoomLevelWhenThreeGridColumnsShown = parseFloat((1/(3/gridColumnsShown)).toPrecision(3))
-      const imgWidthInColumns = imgWidth / fiveFtInPx
-      const zoomLevelWhenAllGridColumnsShown = parseFloat((1/(imgWidthInColumns/gridColumnsShown)).toPrecision(3))
-      const zoomTick = (zoomLevelWhenThreeGridColumnsShown - zoomLevelWhenAllGridColumnsShown) / zoomLevelSteps
-      setMaxZoomLevel(zoomLevelWhenThreeGridColumnsShown)
-      setMinZoomLevel(zoomLevelWhenAllGridColumnsShown)
-      setZoomIncrementBy(zoomTick)
-      // element.removeEventListener('wheel');
-    }
-  }
+  const bgRef = useRef<HTMLImageElement>(null)
 
   const hw = useCallback(
     (ev: Event): void => {
@@ -62,16 +44,39 @@ function App() {
           //is scroll UP
           if ((zoomLevel + zoomIncrementBy) <= maxZoomLevel) {
             setZoomLevel((z) => z + zoomIncrementBy)
+          } else {
+            setZoomLevel((z) => maxZoomLevel)
           }
         } else {
           //is scroll DOWN
           if ((zoomLevel - zoomIncrementBy) > minZoomLevel) {
             setZoomLevel((z) => z - zoomIncrementBy)
+          } else {
+            setZoomLevel((z) => minZoomLevel)
           }
         }
       }
     },
     [maxZoomLevel, minZoomLevel, zoomIncrementBy, zoomLevel]
+  )
+
+  useEffect(
+    () => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        debugger;
+        if (event.key === 'm' || event.key === 'M') {
+          setShowControls((s) => {return !s})
+        }
+      }
+
+      window.addEventListener('keydown', handleKeyDown)
+
+      // Cleanup the event listener on component unmount
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      }
+    },
+    []
   )
 
   useEffect(() => {
@@ -92,10 +97,26 @@ function App() {
     };
   }, [zoomLevel, hw])
 
-  debugger;
+  const bgLoadedHandler = () => {
+    const element = bgRef.current;
+    if (element) {
+      const windowWidth = window.innerWidth
+      const imgWidth = element.naturalWidth ?? 0
+      setBG1WidthAtDefaultZoom(imgWidth)
+      setZoomLevel(1)
+      const gridColumnsShown = windowWidth / fiveFtInPx;
+      const zoomLevelWhenThreeGridColumnsShown = parseFloat((1/(3/gridColumnsShown)).toPrecision(3))
+      const imgWidthInColumns = imgWidth / fiveFtInPx
+      const zoomLevelWhenAllGridColumnsShown = parseFloat((1/(imgWidthInColumns/gridColumnsShown)).toPrecision(3))
+      setMaxZoomLevel(zoomLevelWhenThreeGridColumnsShown)
+      setMinZoomLevel(zoomLevelWhenAllGridColumnsShown)
+    }
+  }
+
   return (
     <div className="App">
       <img
+        alt=""
         src={bg1}
         ref={bgRef}
         style={
@@ -110,18 +131,18 @@ function App() {
           return <div className="actor"
             style={
               {
-                left: `${actor.posX}px`,
-                top: `${actor.posY}px`,
-                height: `${fiveFtInPx}px`,
-                width: `${fiveFtInPx}px`,
+                left: `${actor.posX * zoomLevel}px`,
+                top: `${actor.posY * zoomLevel}px`,
+                height: `${fiveFtInPx * zoomLevel}px`,
+                width: `${fiveFtInPx * zoomLevel}px`,
                 background: "pink"
               }
             }></div>
         }
       )}
-      <div className="controls">
+      <div className="controls" style={{display: showControls ? "block" : "none"}}>
         <h1>Zoom</h1>
-        <input type="range" min="1" max={maxZoomLevel ?? 1} value={zoomLevel} step={zoomIncrementBy} />
+        <input type="range" min="1" max={maxZoomLevel ?? 1} value={zoomLevel} step={0.1} />
         <p>
           Current: {zoomLevel}
           <br />
