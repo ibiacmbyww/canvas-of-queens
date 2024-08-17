@@ -15,26 +15,18 @@ function App() {
   const [zoomLevel, setZoomLevel] = useState(1)
   const [minZoomLevel, setMinZoomLevel] = useState<number>(1)
   const [maxZoomLevel, setMaxZoomLevel] = useState<number>(1)
-  // const [bg1Initialised, setBG1Initialised] = useState<boolean>(false)
   const [showControls, setShowControls] = useState<boolean>(true)
   const [zoomIncrementBy] = useState<number>(0.1)
-  const [scrollX, setScrollX] = useState<number>(0)
-  const [scrollY, setScrollY] = useState<number>(0)
   const [editCharactersMenuOpen, setEditCharactersMenuOpen] = useState<boolean>(false)
   const [bg1WidthAtDefaultZoom, setBG1WidthAtDefaultZoom] = useState<number>(0)
 
   const [moveModeActorIndex, setMoveModeActorIndex] = useState<undefined | number>(undefined)
-  const [moveModeTriangleSideA, setMoveModeTriangleSideA] = useState<number>(0)
-  const [moveModeTriangleSideB, setMoveModeTriangleSideB] = useState<number>(0)
   const [moveModeTriangleSideC, setMoveModeTriangleSideC] = useState<number>(0)
   const [moveModeAngle, setMoveModeAngle] = useState<number>(0)
   const [moveModeMoveTooFar, setMoveModeMoveTooFar] = useState<boolean>(false)
+  const [cheatMoveActive, setCheatMoveActive] = useState<boolean>(false)
   
   const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
-  // const [bg1HeightAtDefaultZoom, setBG1HeightAtDefaultZoom] = useState<number>(0)
-  // const [leftMouseDown, setLeftMouseDown] = useState<boolean>(false)
-  // const [middleMouseDown, setMiddleMouseDown] = useState<boolean>(false)
-  // const [rightMouseDown, setRightMouseDown] = useState<boolean>(false)
 
   const [actors, setActors] = useState<Actor[]>(
     () => {
@@ -134,7 +126,6 @@ function App() {
     if (element) {
       const windowWidth = window.innerWidth
       const imgWidth = element.naturalWidth ?? 0
-      // const imgHeight = element.naturalHeight ?? 0
       setBG1WidthAtDefaultZoom(imgWidth)
       setZoomLevel(1)
       const gridColumnsShown = windowWidth / fiveFtInPx;
@@ -174,22 +165,20 @@ function App() {
           const sB = (window.scrollY + event.y) - actorPositionY
           const sC = Math.sqrt((sA * sA) + (sB * sB))
           let a = radiansCoefficient * Math.atan2(sB, sA)
-          setMoveModeTriangleSideA(sA)
-          setMoveModeTriangleSideB(sB)
           setMoveModeTriangleSideC(sC)
           setMoveModeAngle(a)
-          setMoveModeMoveTooFar(sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
-          setCustomMessage(
-            <>
-              <div>moveRadiusFt: {moveRadiusFt}</div>
-              <div>actorPositionX: {actorPositionX}</div>
-              <div>actorPositionY: {actorPositionY}</div>
-              <div>sA: {sA}</div>
-              <div>sB: {sB}</div>
-              <div>sC: {sC}</div>
-              <div>moveModeMoveTooFar: {sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel) ? "Too far" : "OK"}</div>
-            </>
-          )
+          setMoveModeMoveTooFar(cheatMoveActive ? false : sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
+          // setCustomMessage(
+          //   <>
+          //     <div>moveRadiusFt: {moveRadiusFt}</div>
+          //     <div>actorPositionX: {actorPositionX}</div>
+          //     <div>actorPositionY: {actorPositionY}</div>
+          //     <div>sA: {sA}</div>
+          //     <div>sB: {sB}</div>
+          //     <div>sC: {sC}</div>
+          //     <div>moveModeMoveTooFar: {sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel) ? "Too far" : "OK"}</div>
+          //   </>
+          // )
         }
       }
     
@@ -301,10 +290,6 @@ function App() {
         )}
       </div>
       <div className="controls" style={{display: showControls ? "block" : "none"}}>
-        <div>a: {typeof moveModeTriangleSideA === "number" ? moveModeTriangleSideA : "UNSET"}</div>
-        <div>b: {typeof moveModeTriangleSideB === "number" ? moveModeTriangleSideB : "UNSET"}</div>
-        <div>c: {typeof moveModeTriangleSideC === "number" ? moveModeTriangleSideC : "UNSET"}</div>
-        <div>m: {typeof moveModeAngle === "number" ? moveModeAngle : "UNSET"}</div>
         {customMessage}
         <div className="actors-list-section">
           <h1>Characters</h1>
@@ -348,11 +333,10 @@ function App() {
                         <div className="actor-buttons">
                           <button onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
+                            setCheatMoveActive(false)
                             if (typeof moveModeActorIndex !== "number") {
-                              debugger;
                               setActors(
                                 (prevActors) => {
-                                  debugger;
                                   return prevActors.map(
                                     (prevActor, i) => {
                                       return i === index
@@ -386,7 +370,45 @@ function App() {
                               setMoveModeMoveTooFar(false) //resets cursor
                             }
                           }}>🏃🏻‍♀️‍➡️</button>
-                          <button>😇</button>
+                          <button onClick={(e) => {
+                            e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
+                            setCheatMoveActive(true)
+                            if (typeof moveModeActorIndex !== "number") {
+                              setActors(
+                                (prevActors) => {
+                                  return prevActors.map(
+                                    (prevActor, i) => {
+                                      return i === index
+                                        ? {
+                                          ...prevActor,
+                                          moveRadiusFt: prevActor.moveFt
+                                        }
+                                        : {
+                                          ...prevActor,
+                                          moveRadiusFt: undefined
+                                        }
+                                    }
+                                  )
+                                }
+                              )
+                              setMoveModeActorIndex(index)
+                            } else {
+                              setActors(
+                                (prevActors) => {
+                                  return prevActors.map(
+                                    (prevActor) => {
+                                      return {
+                                        ...prevActor,
+                                        moveRadiusFt: typeof prevActor.moveRadiusFt === "number" ? undefined : prevActor.moveRadiusFt
+                                      }
+                                    }
+                                  )
+                                }
+                              )
+                              setMoveModeActorIndex(undefined)
+                              setMoveModeMoveTooFar(false) //resets cursor
+                            }
+                          }}>😇</button>
                           <button>🗡️</button>
                         </div>
                       </li>
