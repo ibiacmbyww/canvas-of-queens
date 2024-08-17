@@ -258,7 +258,6 @@ function App() {
                   top:  (zoomLevel * (actors[moveModeActorIndex].posY)),
                   width: `${moveModeTriangleSideC}px`,
                   transform: `rotate(${moveModeAngle}deg)`
-                  
                 }
               }
             ></div>
@@ -350,8 +349,10 @@ function App() {
                           <button onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                             if (typeof moveModeActorIndex !== "number") {
+                              debugger;
                               setActors(
                                 (prevActors) => {
+                                  debugger;
                                   return prevActors.map(
                                     (prevActor, i) => {
                                       return i === index

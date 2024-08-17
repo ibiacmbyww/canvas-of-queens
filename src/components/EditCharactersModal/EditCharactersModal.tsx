@@ -64,7 +64,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                       index = parseInt(newIndex)
                       switch (newKey) {
                         //@ts-ignore-next-line
-                        case "actor-id": newKey = "id"; break;
+                        case "actor-id": newKey = "id"; v = parseInt(v); break;
                         //@ts-ignore-next-line
                         case "actor-display-name": newKey = "displayName"; break;
                         //@ts-ignore-next-line
@@ -72,20 +72,23 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         //@ts-ignore-next-line
                         case "actor-color": newKey = "color"; break;
                         //@ts-ignore-next-line
-                        case "actor-movement": newKey = "moveFt"; break;
+                        case "actor-movement": newKey = "moveFt"; v = parseInt(v); break;
                         //@ts-ignore-next-line
-                        case "actor-placed": newKey = "isPlaced"; break;
+                        case "actor-placed": newKey = "isPlaced"; v = v.toString() === "true"; break;
                         //@ts-ignore-next-line
-                        case "actor-posx": newKey = "posX"; break;
+                        case "actor-posx": newKey = "posX"; v = parseInt(v); break;
                         //@ts-ignore-next-line
-                        case "actor-posy": newKey = "posY"; break;
-                        case "actor-deleted": newKey = "isDeleted"; break;
-                        case "actor-radius": newKey = "moveRadiusFt"; break;
+                        case "actor-posy": newKey = "posY"; v = parseInt(v); break;
+                        //@ts-ignore-next-line
+                        case "actor-deleted": newKey = "isDeleted"; v = v.toString() === "true"; break;
+                        case "actor-radius":
+                          newKey = "moveRadiusFt";
+                          //@ts-ignore-next-line
+                          v = typeof v === "number"
+                            ? parseInt(v)
+                            : undefined;
+                        break;
                       // const num: number = parseInt(keyChunks.at(-1)?? "0")
-                      }
-                      if (newKey === "isDeleted") {
-                        //@ts-ignore-next-line
-                        v = (v === "true")
                       }
                       outerSan[index] = {
                         //@ts-ignore-next-line
