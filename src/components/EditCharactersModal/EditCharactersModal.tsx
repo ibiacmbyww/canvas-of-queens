@@ -243,7 +243,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                               posY: 0,
                               highlighted: false,
                               isDeleted: false,
-                              moveRadiusFt: 0
+                              moveRadiusFt: undefined
                             }
                           ]
                           return x

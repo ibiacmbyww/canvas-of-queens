@@ -69,6 +69,7 @@ function App() {
     }
   )
   const bgRef = useRef<HTMLImageElement>(null)
+  const canvasRef = useRef<HTMLDivElement>(null)
 
   const wheelEventHandler = useCallback(
     (event: Event): void => {
@@ -113,7 +114,7 @@ function App() {
   )
 
   useEffect(() => {
-    const element = bgRef.current;
+    const element = canvasRef.current;
     if (element) {
       element.addEventListener(
         'wheel',
@@ -169,8 +170,8 @@ function App() {
           const moveRadiusFt = actors[moveModeActorIndex].moveRadiusFt as number
           const actorPositionX = actors[moveModeActorIndex].posX * zoomLevel
           const actorPositionY = actors[moveModeActorIndex].posY * zoomLevel
-          const sA = event.x - actorPositionX
-          const sB = event.y - actorPositionY
+          const sA = (window.scrollX + event.x) - actorPositionX
+          const sB = (window.scrollY + event.y) - actorPositionY
           const sC = Math.sqrt((sA * sA) + (sB * sB))
           let a = radiansCoefficient * Math.atan2(sB, sA)
           setMoveModeTriangleSideA(sA)
@@ -247,7 +248,7 @@ function App() {
         }
         onLoad={bgLoadedHandler}
       />
-      <div className={`canvas${moveModeMoveTooFar ? " too-far" : ""}`}>
+      <div className={`canvas${moveModeMoveTooFar ? " too-far" : ""}`} ref={canvasRef}>
         {typeof moveModeActorIndex === "number"
           ? <div
               className="line"
@@ -255,7 +256,7 @@ function App() {
                 {
                   left: (zoomLevel * (actors[moveModeActorIndex].posX)),
                   top:  (zoomLevel * (actors[moveModeActorIndex].posY)),
-                  width: `${moveModeTriangleSideC * zoomLevel}px`,
+                  width: `${moveModeTriangleSideC}px`,
                   transform: `rotate(${moveModeAngle}deg)`
                   
                 }
