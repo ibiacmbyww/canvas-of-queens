@@ -80,7 +80,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         //@ts-ignore-next-line
                         case "actor-posy": newKey = "posY"; break;
                         case "actor-deleted": newKey = "isDeleted"; break;
-                        case "actor-radius": newKey = "radiusFt"; break;
+                        case "actor-radius": newKey = "moveRadiusFt"; break;
                       // const num: number = parseInt(keyChunks.at(-1)?? "0")
                       }
                       if (newKey === "isDeleted") {
@@ -130,7 +130,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                 <div className="attributes-list">
                                   <input type="hidden" value={tempActor.id} name={`actor-id-${index}`} />
                                   <input type="hidden" value={"" + tempActor.isDeleted} name={`actor-deleted-${index}`} />
-                                  <input type="hidden" value={"" + tempActor.radiusFt} name={`actor-radius-${index}`} />
+                                  <input type="hidden" value={"" + tempActor.moveRadiusFt} name={`actor-radius-${index}`} />
                                   <label htmlFor={`actor-display-name-${index}`}>
                                     Display name:
                                   </label>
@@ -243,7 +243,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                               posY: 0,
                               highlighted: false,
                               isDeleted: false,
-                              radiusFt: 0
+                              moveRadiusFt: 0
                             }
                           ]
                           return x

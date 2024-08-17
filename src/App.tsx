@@ -22,11 +22,14 @@ function App() {
   const [scrollY, setScrollY] = useState<number>(0)
   const [editCharactersMenuOpen, setEditCharactersMenuOpen] = useState<boolean>(false)
   const [bg1WidthAtDefaultZoom, setBG1WidthAtDefaultZoom] = useState<number>(0)
-  const [moveMode, setMoveMode] = useState<false | number>(false)
-  const [sideA, setSideA] = useState<number>(0)
-  const [sideB, setSideB] = useState<number>(0)
-  const [sideC, setSideC] = useState<number>(0)
+
+  const [moveModeActorIndex, setMoveModeActorIndex] = useState<undefined | number>(undefined)
+  const [moveModeTriangleSideA, setMoveModeTriangleSideA] = useState<number>(0)
+  const [moveModeTriangleSideB, setMoveModeTriangleSideB] = useState<number>(0)
+  const [moveModeTriangleSideC, setMoveModeTriangleSideC] = useState<number>(0)
   const [moveModeAngle, setMoveModeAngle] = useState<number>(0)
+  const [moveModeMoveTooFar, setMoveModeMoveTooFar] = useState<boolean>(false)
+  
   const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
   // const [bg1HeightAtDefaultZoom, setBG1HeightAtDefaultZoom] = useState<number>(0)
   // const [leftMouseDown, setLeftMouseDown] = useState<boolean>(false)
@@ -47,7 +50,7 @@ function App() {
           posY: 600,
           highlighted: false,
           isDeleted: false,
-          radiusFt: 27
+          moveRadiusFt: undefined
         },
         {
           id: 1,
@@ -60,7 +63,7 @@ function App() {
           posY: 200,
           highlighted: false,
           isDeleted: false,
-          radiusFt: false
+          moveRadiusFt: undefined
         }
       ]
     }
@@ -91,20 +94,6 @@ function App() {
     },
     [maxZoomLevel, minZoomLevel, zoomIncrementBy, zoomLevel]
   )
-  const bgMouseUp: MouseEventHandler = (e) => {
-    if (e.button === 0) {
-      //left click
-    // debugger;
-    }
-    if (e.button === 1) {
-      //middle click
-    // debugger;
-    }
-    if (e.button === 2) {
-      //right click
-    // debugger;
-    }
-  }
   useEffect(
     () => {
       const handleKeyDown = (event: KeyboardEvent) => {
@@ -173,32 +162,74 @@ function App() {
 
   useEffect(
     () => {
-      if (typeof moveMode === "number") {
-        const actorPositionX = actors[moveMode].posX * zoomLevel
-        const actorPositionY = actors[moveMode].posY * zoomLevel
-        window.addEventListener("mousemove", (e) => {
-          const sA = e.x - actorPositionX
-          const sB = e.y - actorPositionY
+
+      const moveModeUpdateMouseTracking = (event: MouseEvent) => {
+        // event.stopPropagation()
+        if (typeof moveModeActorIndex === "number") {
+          const moveRadiusFt = actors[moveModeActorIndex].moveRadiusFt as number
+          const actorPositionX = actors[moveModeActorIndex].posX * zoomLevel
+          const actorPositionY = actors[moveModeActorIndex].posY * zoomLevel
+          const sA = event.x - actorPositionX
+          const sB = event.y - actorPositionY
           const sC = Math.sqrt((sA * sA) + (sB * sB))
           let a = radiansCoefficient * Math.atan2(sB, sA)
-          debugger;
-          setSideA(sA)
-          setSideB(sB)
-          setSideC(sC)
+          setMoveModeTriangleSideA(sA)
+          setMoveModeTriangleSideB(sB)
+          setMoveModeTriangleSideC(sC)
           setMoveModeAngle(a)
+          setMoveModeMoveTooFar(sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
           setCustomMessage(
             <>
-              <div>e.x: {e.x}</div>
-              <div>e.y: {e.y}</div>
-              <div>aX: {actorPositionX}</div>
-              <div>aY: {actorPositionY}</div>
+              <div>moveRadiusFt: {moveRadiusFt}</div>
+              <div>actorPositionX: {actorPositionX}</div>
+              <div>actorPositionY: {actorPositionY}</div>
+              <div>sA: {sA}</div>
+              <div>sB: {sB}</div>
+              <div>sC: {sC}</div>
+              <div>moveModeMoveTooFar: {sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel) ? "Too far" : "OK"}</div>
             </>
           )
-
-        })
+        }
+      }
+    
+      const moveModeOnClickHandler = (e: MouseEvent) => {
+        debugger;
+        if (!moveModeMoveTooFar) {
+          setActors(
+            (prevActors) => {
+              return prevActors.map(
+                (prevActor, i) => {
+                  if (moveModeActorIndex === i) {
+                    //abusing side effects for fun and profit
+                    moveModeUpdateMouseTracking(e)
+                    return {
+                      ...prevActor,
+                      posX: (e.x + window.scrollX) / zoomLevel,
+                      posY: (e.y + window.scrollY) / zoomLevel
+                    }
+                  }
+                  return prevActor
+                }
+              )
+            }
+          )
+        }
+      }
+      if (typeof moveModeActorIndex === "number") {
+        window.removeEventListener("mousemove", moveModeUpdateMouseTracking)
+        window.removeEventListener("click", moveModeOnClickHandler)
+        window.addEventListener("mousemove", moveModeUpdateMouseTracking)
+        window.addEventListener("click", moveModeOnClickHandler)
+      } else {
+        window.removeEventListener("mousemove", moveModeUpdateMouseTracking)
+        window.removeEventListener("click", moveModeOnClickHandler)
+      }
+      return () => {
+        window.removeEventListener("mousemove", moveModeUpdateMouseTracking)
+        window.removeEventListener("click", moveModeOnClickHandler)
       }
     },
-    [moveMode]
+    [actors, moveModeActorIndex, moveModeMoveTooFar, oneFtInPx, radiansCoefficient, zoomLevel]
   )
 
   return (
@@ -216,61 +247,63 @@ function App() {
         }
         onLoad={bgLoadedHandler}
       />
-      {typeof moveMode === "number"
-        ? <div
-            className="line"
-            style={
-              {
-                left: (zoomLevel * (actors[moveMode].posX)),
-                top:  (zoomLevel * (actors[moveMode].posY)),
-                width: `${sideC * zoomLevel}px`,
-                transform: `rotate(${moveModeAngle}deg)`
-                
-              }
-            }
-          ></div>
-        : <></>
-      }
-      {actors.map(
-        (actor, index) => {
-          return (
-            <div
-              className="actor-wrapper"
+      <div className={`canvas${moveModeMoveTooFar ? " too-far" : ""}`}>
+        {typeof moveModeActorIndex === "number"
+          ? <div
+              className="line"
               style={
                 {
-                  left: `${(actor.posX - (2.5 * oneFtInPx)) * zoomLevel}px`,
-                  top: `${(actor.posY - (2.5 * oneFtInPx)) * zoomLevel}px`,
-                  height: `${fiveFtInPx * zoomLevel}px`,
-                  width: `${fiveFtInPx * zoomLevel}px`
+                  left: (zoomLevel * (actors[moveModeActorIndex].posX)),
+                  top:  (zoomLevel * (actors[moveModeActorIndex].posY)),
+                  width: `${moveModeTriangleSideC * zoomLevel}px`,
+                  transform: `rotate(${moveModeAngle}deg)`
+                  
                 }
               }
-            >
-              <div className="radius"
-                style={
-                  actor.radiusFt && (moveMode === index)
-                    ? {
-                      height: `${(oneFtInPx * (5 + actor.radiusFt)) * zoomLevel}px`,
-                      width:  `${(oneFtInPx * (5 + actor.radiusFt)) * zoomLevel}px`
-                    }
-                    : {}
-                }
-              ></div>
+            ></div>
+          : <></>
+        }
+        {actors.map(
+          (actor, index) => {
+            return (
               <div
-                className={`actor${actor.highlighted ? " highlighted" : ""}`}
+                className="actor-wrapper"
                 style={
                   {
-                    background: actor.color
+                    left: `${(actor.posX - (2.5 * oneFtInPx)) * zoomLevel}px`,
+                    top:  `${(actor.posY - (2.5 * oneFtInPx)) * zoomLevel}px`,
+                    height: `${fiveFtInPx * zoomLevel}px`,
+                    width: `${fiveFtInPx * zoomLevel}px`
                   }
                 }
-              ></div>
-            </div>
-          )
-        }
-      )}
+              >
+                <div className="radius"
+                  style={
+                    actor.moveRadiusFt && (moveModeActorIndex === index)
+                      ? {
+                        height: `${zoomLevel * oneFtInPx * ((2.5 + actor.moveRadiusFt) * 2)}px`,
+                        width:  `${zoomLevel * oneFtInPx * ((2.5 + actor.moveRadiusFt) * 2)}px`
+                      }
+                      : {}
+                  }
+                ></div>
+                <div
+                  className={`actor${actor.highlighted ? " highlighted" : ""}`}
+                  style={
+                    {
+                      background: actor.color
+                    }
+                  }
+                ></div>
+              </div>
+            )
+          }
+        )}
+      </div>
       <div className="controls" style={{display: showControls ? "block" : "none"}}>
-        <div>a: {typeof sideA === "number" ? sideA : "UNSET"}</div>
-        <div>b: {typeof sideB === "number" ? sideB : "UNSET"}</div>
-        <div>c: {typeof sideC === "number" ? sideC : "UNSET"}</div>
+        <div>a: {typeof moveModeTriangleSideA === "number" ? moveModeTriangleSideA : "UNSET"}</div>
+        <div>b: {typeof moveModeTriangleSideB === "number" ? moveModeTriangleSideB : "UNSET"}</div>
+        <div>c: {typeof moveModeTriangleSideC === "number" ? moveModeTriangleSideC : "UNSET"}</div>
         <div>m: {typeof moveModeAngle === "number" ? moveModeAngle : "UNSET"}</div>
         {customMessage}
         <div className="actors-list-section">
@@ -314,7 +347,42 @@ function App() {
                         <small>{actor.playerName}</small>
                         <div className="actor-buttons">
                           <button onClick={(e) => {
-                            setMoveMode(index)
+                            e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
+                            if (typeof moveModeActorIndex !== "number") {
+                              setActors(
+                                (prevActors) => {
+                                  return prevActors.map(
+                                    (prevActor, i) => {
+                                      return i === index
+                                        ? {
+                                          ...prevActor,
+                                          moveRadiusFt: prevActor.moveFt
+                                        }
+                                        : {
+                                          ...prevActor,
+                                          moveRadiusFt: undefined
+                                        }
+                                    }
+                                  )
+                                }
+                              )
+                              setMoveModeActorIndex(index)
+                            } else {
+                              setActors(
+                                (prevActors) => {
+                                  return prevActors.map(
+                                    (prevActor) => {
+                                      return {
+                                        ...prevActor,
+                                        moveRadiusFt: typeof prevActor.moveRadiusFt === "number" ? undefined : prevActor.moveRadiusFt
+                                      }
+                                    }
+                                  )
+                                }
+                              )
+                              setMoveModeActorIndex(undefined)
+                              setMoveModeMoveTooFar(false) //resets cursor
+                            }
                           }}>🏃🏻‍♀️‍➡️</button>
                           <button>😇</button>
                           <button>🗡️</button>

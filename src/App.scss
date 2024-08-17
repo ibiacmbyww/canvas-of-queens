@@ -47,6 +47,10 @@
           border-bottom: 2px solid $bg-dark;
           padding: .5rem 0;
 
+          &:hover {
+            background: #ffdd99;
+          }
+
           &.empty {
             font-style: italic;
             gap: 0;
@@ -89,6 +93,19 @@
       }
     }
   }
+
+  .canvas {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 29;
+
+    &.too-far {
+      cursor:not-allowed;
+    }
+  }
   .actor-wrapper {
     position: absolute;
     z-index: 30;
@@ -96,15 +113,18 @@
       border-radius: 100%;
       width: 100%;
       height: 100%;
-      border: 2px solid transparent;
+      // border: 10px solid transparent;
       &.highlighted {
-        border: 2px solid black;
-        box-shadow: 0 0 16px #ffdd99;
+        border: 2px solid rgba(244, 244, 240, 0.8);
+        box-shadow: 
+                    0px 0px 6px 6px rgba(244, 244, 240, 0.6),
+                    0px 0px 6px 8px rgba(244, 244, 240, 0.4),
+                    0px 0px 4px 4px rgba(244, 244, 240, 0.6) inset;
       }
     }
     .radius {
       position: absolute;
-      z-index: 0;
+      z-index: 28;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -121,7 +141,7 @@
     // transform: translate(-50%, -50%);
     transform-origin: 0% 50%;
     height: 4px;
-    z-index: 90;
+    z-index: 27;
     background-color: pink;
   }
 }

@@ -6,7 +6,7 @@ type Actor = {
   posY: number;
   color: string;
   moveFt: number;
-  radiusFt: number | false;
+  moveRadiusFt: number | undefined;
   isPlaced: boolean;
   highlighted: boolean;
   isDeleted: boolean;
