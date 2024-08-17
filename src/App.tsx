@@ -180,10 +180,7 @@ function App() {
           const sA = e.x - actorPositionX
           const sB = e.y - actorPositionY
           const sC = Math.sqrt((sA * sA) + (sB * sB))
-          let a = radiansCoefficient * Math.asin(sB / sC)
-          if (sC < 0) {
-            a = a * -1
-          }
+          let a = radiansCoefficient * Math.atan2(sB, sA)
           debugger;
           setSideA(sA)
           setSideB(sB)
