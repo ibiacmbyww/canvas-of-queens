@@ -252,9 +252,12 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                     }}>
                       ➕ Add Character
                   </button>
-                  <input type="text" defaultValue={"New Character"} onChange={(e) => {
-                    setNewCharacterDisplayName(e.currentTarget.value)
-                  }}/>
+                  <label htmlFor="add-new-character-name">
+                    <span>New character name: </span>
+                    <input type="text" id="add-new-character-name" defaultValue={"New Character"} onChange={(e) => {
+                      setNewCharacterDisplayName(e.currentTarget.value)
+                    }}/>
+                  </label>
                 </div>
               </form>
               <div className="confirm-or-cancel">

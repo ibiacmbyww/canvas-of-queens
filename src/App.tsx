@@ -395,6 +395,7 @@ function App() {
             }
           </ul>
           <button
+            disabled={typeof moveModeActorIndex === "number"}
             onClick={() => {
               setEditCharactersMenuOpen(true)
             }}

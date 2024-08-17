@@ -1,5 +1,5 @@
 .EditCharactersModal {
-  z-index: 4;
+  z-index: 40;
   position: fixed;
   position: fixed;
   top: 0;
@@ -24,7 +24,7 @@
     height: 100vh;
     left: 0;
     width: 100vw;
-    z-index: 5;
+    z-index: 50;
   }
   .inner {
     width: min(100vw, 1138px);
@@ -32,7 +32,7 @@
     background-color: $bg;
     padding: 1rem;
     border: 0.25rem solid $bg-dark;
-    z-index: 6;
+    z-index: 60;
     display: grid;
     grid-template-rows: max-content 1fr min-content;
     overflow: scroll;
