@@ -37,7 +37,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
       }
     )
     const subFormRefs = useRef<HTMLFormElement[]>([])
-    const formRefs = useRef(data.map(() => React.createRef<HTMLFormElement>()));
+    const formRef = useRef<HTMLFormElement>()
     debugger;
     return open
       ? (
@@ -45,75 +45,80 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
             <div className="blocker">
             </div>
             <div className="inner">
-              <div className="actors-list-section">
+              <form
+                className="actors-list-section"
+                name="actor-form-0"
+                id="actor-form-0"
+                // ref={formRef}
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  debugger;
+                  const fd = new FormData(e.currentTarget)
+                  const formsJSON = Object.fromEntries(fd.entries())
+                  //trust me, this is easier than the alternatives
+                  let index = 0
+                  let outerSan: unknown[] = []
+                  let san = {}
+                  Object.entries(formsJSON).forEach(
+                    ([k, v], i) => {
+                      const keyChunks = k.split("-")
+                      const xzxzx = keyChunks.splice(keyChunks.length - 1, 1)[0]
+                      let newKey = keyChunks.join("-")
+                      switch (newKey) {
+                        //@ts-ignore-next-line
+                        case "actor-id": newKey = "id"; break;
+                        //@ts-ignore-next-line
+                        case "actor-display-name": newKey = "displayName"; break;
+                        //@ts-ignore-next-line
+                        case "actor-player-name": newKey = "playerName"; break;
+                        //@ts-ignore-next-line
+                        case "actor-color": newKey = "color"; break;
+                        //@ts-ignore-next-line
+                        case "actor-movement": newKey = "moveFt"; break;
+                        //@ts-ignore-next-line
+                        case "actor-placed": newKey = "isPlaced"; break;
+                        //@ts-ignore-next-line
+                        case "actor-posx": newKey = "posX"; break;
+                        //@ts-ignore-next-line
+                        case "actor-posy": newKey = "posY"; break;
+                      }
+                      index = parseInt(xzxzx)
+                      // const num: number = parseInt(keyChunks.at(-1)?? "0")
+                      outerSan[index] = {
+                        //@ts-ignore-next-line
+                        ...outerSan[index],
+                        [newKey]: v
+                      }
+                    }
+                  )
+                  outerSan = outerSan.map(
+                    (v) => {
+                      let t: Partial<Actor> = v as Partial<Actor>
+                      if (!("posX" in t)) {
+                        t["posX"] = 0
+                      }
+                      if (!("posY" in t)) {
+                        t["posY"] = 0
+                      }
+                      if (!("isPlaced" in t)) {
+                        t["isPlaced"] = false
+                      }
+                      return t
+                    }
+                  )
+                  debugger;
+                  dataSetter(outerSan as Actor[])
+                }}
+              >
                 <ul>
                   {tempActors.length
                     ? tempActors.map(
                         (tempActor, index) => {
                           return (
                             <li key={tempActor.id}>
-                              <form
-                                name={`actor-form-${index}`}
-                                id={`actor-form-${index}`}
-                                ref={formRefs.current[index]}
-                                onSubmit={(e) => {
-                                  e.preventDefault()
-                                  if (formRefs.current) {
-                                    const formsData = formRefs.current.map(
-                                      (subForm, subFormIndex) => {
-                                        debugger;
-                                        if (subForm.current) {
-                                          const fd = new FormData(subForm.current)
-                                          const formsJSON = Object.fromEntries(fd.entries())
-                                          //trust me, this is easier than the alternatives
-                                          let san = {}
-                                          Object.entries(formsJSON).forEach(
-                                            ([k, v], i) => {
-                                              const keyChunks = k.split("-")
-                                              const newKey = keyChunks.slice(0, keyChunks.length - 1).join("-")
-                                              debugger;
-                                              san = {
-                                                ...san,
-                                                [newKey]: v
-                                              }
-                                            }
-                                          )
-                                          debugger;
-                                          return {
-                                            id: subFormIndex,
-                                            //@ts-ignore-next-line
-                                            displayName: san["actor-display-name"],
-                                            //@ts-ignore-next-line
-                                            playerName: san["actor-player-name"],
-                                            //@ts-ignore-next-line
-                                            color: san["actor-color"],
-                                            //@ts-ignore-next-line
-                                            moveFt: san["actor-movement"],
-                                            //@ts-ignore-next-line
-                                            isPlaced: san["actor-placed"] === "on",
-                                            //@ts-ignore-next-line
-                                            posX: san["actor-posx"],
-                                            //@ts-ignore-next-line
-                                            posY: san["actor-posy"],
-                                            highlighted: false
-                                          }
-                                        } else {
-                                          return [] //can never be reached?
-                                        }
-                                      }
-                                    )
-                                    debugger;
-                                    //@ts-ignore-next-line
-                                    dataSetter(formsData)
-
-                                  }
-                                  // const formData = new FormData(e.currentTarget);
-                                  // const formJSON = Object.fromEntries(formData.entries());
-                                  debugger;
-                                }}
-                              >
                                 <span className='blob' style={{background: tempActor.color}}></span>
                                 <div className="attributes-list">
+                                  <input type="hidden" value={tempActor.id} name={`actor-id-${index}`} />
                                   <label htmlFor={`actor-display-name-${index}`}>
                                     Display name:
                                   </label>
@@ -176,19 +181,21 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                                 </div>
                                 <div className="remove-character">
                                   <button
+                                    type="button"
                                     onClick={
                                       () => {
+                                        debugger;
                                         setTempActors(
                                           (prevTempActors) => {
+                                            const x = [...prevTempActors]
+                                            x.splice(index, 1)
                                             debugger;
-                                            prevTempActors.splice(index, 1)
-                                            return prevTempActors
+                                            return x
                                           }
                                         )
                                       }
                                     }>❌</button>
                                 </div>
-                              </form>
                             </li>
                           )
                         }
@@ -198,15 +205,15 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                 </ul>
                 <button
                   className="add-character"
+                  type="button"
                   onClick={(e) => {
-                    formRefs.current.push(React.createRef<HTMLFormElement>())
                     setIsInScene([...isInScene, false])
                     setTempActors(
                       (prevTempActors) => {
                         const x = [
                           ...prevTempActors,
                           {
-                            id: prevTempActors.length,
+                            id: Math.round(Math.random() * Number.MAX_SAFE_INTEGER),
                             displayName: "New Character",
                             playerName: "GM",
                             color: Colors.White,
@@ -217,39 +224,39 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                             highlighted: false
                           }
                         ]
-                        debugger;
                         return x
                       }
                     )
                   }}>➕ Add Character</button>
-              </div>
+              </form>
               <div className="confirm-or-cancel">
-              <button
-                type="submit"
-                form="actor-form-0"
-                className="confirm-button"
-              > ✔️ Confirm</button>
-              <button
-                className="cancel-button"
-                onClick={(e) => {
-                  setTempActors(
-                    (prevTempActors) => {
-                      return [
-                        ...prevTempActors,
-                        {
-                          id: 1,
-                          displayName: "Sgt. Bayez",
-                          playerName: "GM",
-                          color: Colors.Blue,
-                          moveFt: 20,
-                          isPlaced: false,
-                          posX: 0,
-                          posY: 0,
-                          highlighted: false
-                        }
-                      ]
-                    }
-                  )
+                <button
+                  type="submit"
+                  form="actor-form-0"
+                  className="confirm-button"
+                >✔️ Confirm</button>
+                <button
+                  className="cancel-button"
+                  type="button"
+                  onClick={(e) => {
+                    // setTempActors(
+                    //   (prevTempActors) => {
+                    //     return [
+                    //       ...prevTempActors,
+                    //       {
+                    //         id: 1,
+                    //         displayName: "Sgt. Bayez",
+                    //         playerName: "GM",
+                    //         color: Colors.Blue,
+                    //         moveFt: 20,
+                    //         isPlaced: false,
+                    //         posX: 0,
+                    //         posY: 0,
+                    //         highlighted: false
+                    //       }
+                    //     ]
+                    //   }
+                    // )
                 }}>❌ Cancel</button>
               </div>
             </div>
