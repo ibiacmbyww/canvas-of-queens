@@ -7,6 +7,7 @@ type Props = {
     // Define your prop types here
     data: Actor[];
     dataSetter: React.Dispatch<React.SetStateAction<Actor[]>>;
+    openSetter: React.Dispatch<React.SetStateAction<boolean>>;
     open: boolean;
     map: React.RefObject<HTMLImageElement>;
 };
@@ -29,16 +30,14 @@ type Props = {
 //     return [...prevActors, newActor]
 //   }
 // )
-const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => {
+const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, openSetter}) => {
     const [tempActors, setTempActors] = useState<Actor[]>(data)
+    const [newCharacterDisplayName, setNewCharacterDisplayName] = useState<string>("New Character")
     const [isInScene, setIsInScene] = useState<boolean[]>(
       () => {
         return data.map((v) => {return v.isPlaced})
       }
     )
-    const subFormRefs = useRef<HTMLFormElement[]>([])
-    const formRef = useRef<HTMLFormElement>()
-    debugger;
     return open
       ? (
           <div className='EditCharactersModal' id="something">
@@ -52,18 +51,17 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                 // ref={formRef}
                 onSubmit={(e) => {
                   e.preventDefault()
-                  debugger;
                   const fd = new FormData(e.currentTarget)
                   const formsJSON = Object.fromEntries(fd.entries())
                   //trust me, this is easier than the alternatives
                   let index = 0
                   let outerSan: unknown[] = []
-                  let san = {}
                   Object.entries(formsJSON).forEach(
                     ([k, v], i) => {
                       const keyChunks = k.split("-")
-                      const xzxzx = keyChunks.splice(keyChunks.length - 1, 1)[0]
+                      const newIndex = keyChunks.splice(keyChunks.length - 1, 1)[0]
                       let newKey = keyChunks.join("-")
+                      index = parseInt(newIndex)
                       switch (newKey) {
                         //@ts-ignore-next-line
                         case "actor-id": newKey = "id"; break;
@@ -81,14 +79,25 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                         case "actor-posx": newKey = "posX"; break;
                         //@ts-ignore-next-line
                         case "actor-posy": newKey = "posY"; break;
-                      }
-                      index = parseInt(xzxzx)
+                        case "actor-deleted": newKey = "isDeleted"; break;
+                        case "actor-radius": newKey = "radiusFt"; break;
                       // const num: number = parseInt(keyChunks.at(-1)?? "0")
+                      }
+                      if (newKey === "isDeleted") {
+                        //@ts-ignore-next-line
+                        v = (v === "true")
+                      }
                       outerSan[index] = {
                         //@ts-ignore-next-line
                         ...outerSan[index],
                         [newKey]: v
                       }
+                    }
+                  )
+                  outerSan = outerSan.filter(
+                    (v) => {
+                      //@ts-ignore-next-line
+                      return !v.isDeleted
                     }
                   )
                   outerSan = outerSan.map(
@@ -106,8 +115,9 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                       return t
                     }
                   )
-                  debugger;
+                  openSetter(false)
                   dataSetter(outerSan as Actor[])
+                  setTempActors(outerSan as Actor[])
                 }}
               >
                 <ul>
@@ -115,10 +125,12 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                     ? tempActors.map(
                         (tempActor, index) => {
                           return (
-                            <li key={tempActor.id}>
+                            <li key={tempActor.id} className={`${tempActor.isDeleted ? "is-deleted" : ""}`}>
                                 <span className='blob' style={{background: tempActor.color}}></span>
                                 <div className="attributes-list">
                                   <input type="hidden" value={tempActor.id} name={`actor-id-${index}`} />
+                                  <input type="hidden" value={"" + tempActor.isDeleted} name={`actor-deleted-${index}`} />
+                                  <input type="hidden" value={"" + tempActor.radiusFt} name={`actor-radius-${index}`} />
                                   <label htmlFor={`actor-display-name-${index}`}>
                                     Display name:
                                   </label>
@@ -183,14 +195,21 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                                   <button
                                     type="button"
                                     onClick={
-                                      () => {
-                                        debugger;
+                                      (e) => {
+                                        e.stopPropagation();
                                         setTempActors(
                                           (prevTempActors) => {
-                                            const x = [...prevTempActors]
-                                            x.splice(index, 1)
-                                            debugger;
-                                            return x
+                                            return prevTempActors.map(
+                                              (pta, i) => {
+                                                if (i === index) {
+                                                  return {
+                                                    ...pta,
+                                                    isDeleted: !pta.isDeleted
+                                                  }
+                                                }
+                                                return pta
+                                              }
+                                            )
                                           }
                                         )
                                       }
@@ -203,31 +222,40 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                     : <li className="empty">None</li>
                   }
                 </ul>
-                <button
-                  className="add-character"
-                  type="button"
-                  onClick={(e) => {
-                    setIsInScene([...isInScene, false])
-                    setTempActors(
-                      (prevTempActors) => {
-                        const x = [
-                          ...prevTempActors,
-                          {
-                            id: Math.round(Math.random() * Number.MAX_SAFE_INTEGER),
-                            displayName: "New Character",
-                            playerName: "GM",
-                            color: Colors.White,
-                            moveFt: 25,
-                            isPlaced: false,
-                            posX: 0,
-                            posY: 0,
-                            highlighted: false
-                          }
-                        ]
-                        return x
-                      }
-                    )
-                  }}>➕ Add Character</button>
+                <div className="add-character-strip">
+                  <button
+                    className="add-character"
+                    type="button"
+                    onClick={(e) => {
+                      setIsInScene([...isInScene, false])
+                      setTempActors(
+                        (prevTempActors) => {
+                          const x = [
+                            ...prevTempActors,
+                            {
+                              id: Math.round(Math.random() * Number.MAX_SAFE_INTEGER),
+                              displayName: newCharacterDisplayName,
+                              playerName: "GM",
+                              color: Colors.White,
+                              moveFt: 25,
+                              isPlaced: false,
+                              posX: 0,
+                              posY: 0,
+                              highlighted: false,
+                              isDeleted: false,
+                              radiusFt: 0
+                            }
+                          ]
+                          return x
+                        }
+                      )
+                    }}>
+                      ➕ Add Character
+                  </button>
+                  <input type="text" defaultValue={"New Character"} onChange={(e) => {
+                    setNewCharacterDisplayName(e.currentTarget.value)
+                  }}/>
+                </div>
               </form>
               <div className="confirm-or-cancel">
                 <button
@@ -239,25 +267,10 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map}) => 
                   className="cancel-button"
                   type="button"
                   onClick={(e) => {
-                    // setTempActors(
-                    //   (prevTempActors) => {
-                    //     return [
-                    //       ...prevTempActors,
-                    //       {
-                    //         id: 1,
-                    //         displayName: "Sgt. Bayez",
-                    //         playerName: "GM",
-                    //         color: Colors.Blue,
-                    //         moveFt: 20,
-                    //         isPlaced: false,
-                    //         posX: 0,
-                    //         posY: 0,
-                    //         highlighted: false
-                    //       }
-                    //     ]
-                    //   }
-                    // )
-                }}>❌ Cancel</button>
+                    openSetter(false)
+                }}>
+                  ❌ Cancel
+                </button>
               </div>
             </div>
           </div>

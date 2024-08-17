@@ -6,8 +6,10 @@ type Actor = {
   posY: number;
   color: string;
   moveFt: number;
+  radiusFt: number | false;
   isPlaced: boolean;
   highlighted: boolean;
+  isDeleted: boolean;
 }
 
 export default Actor
