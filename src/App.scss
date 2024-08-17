@@ -47,7 +47,7 @@
           border-bottom: 2px solid $bg-dark;
           padding: .5rem 0;
 
-          &:hover {
+          &:hover:not(.not-placed) {
             background: #ffdd99;
           }
 
@@ -56,11 +56,21 @@
             gap: 0;
           }
 
+          &.not-placed > *:not(.actor-buttons) {
+            opacity: 0.5;
+          }
+
+          &.not-placed > .actor-buttons > .place {
+            opacity: 1 !important;
+            border: 4px solid black;
+          }
+
           .blob {
             display: block;
             height: 100%;
             aspect-ratio: 1/1;
             border-radius: 1rem;
+            border: 2px solid black;
           }
 
           .name {
@@ -87,6 +97,10 @@
               font-size: .8rem;
               padding: 0;
               aspect-ratio: 1/1;
+
+              &:disabled {
+                opacity: 0.5;
+              }
             }
           }
         }

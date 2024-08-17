@@ -1,14 +1,12 @@
-import React, { WheelEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import bg1 from "./img/bg1.png";
 import './App.scss';
-import { MouseEventHandler } from 'react';
 import Actor from './types/Actor';
 import Colors from './types/Colors';
 import EditCharactersModal from './components/EditCharactersModal/EditCharactersModal';
 
 function App() {
   const radiansCoefficient = 180 / Math.PI
-  const [nextID, setNextID] = useState<number>(-1)
   
   const [fiveFtInPx] = useState<number>(70)
   const [oneFtInPx] = useState<number>(14)
@@ -26,6 +24,8 @@ function App() {
   const [moveModeMoveTooFar, setMoveModeMoveTooFar] = useState<boolean>(false)
   const [cheatMoveActive, setCheatMoveActive] = useState<boolean>(false)
   
+  const [placeModeActorIndex, setPlaceModeActorIndex] = useState<undefined | number>(undefined)
+
   const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
 
   const [actors, setActors] = useState<Actor[]>(
@@ -37,7 +37,7 @@ function App() {
           playerName: "Alice",
           color: Colors.Purple,
           moveFt: 25,
-          isPlaced: true,
+          isPlaced: false,
           posX: 700,
           posY: 600,
           highlighted: false,
@@ -222,6 +222,42 @@ function App() {
     [actors, moveModeActorIndex, moveModeMoveTooFar, oneFtInPx, radiansCoefficient, zoomLevel]
   )
 
+  useEffect(
+    () => {
+      const placeModeOnClickHandler = (e: MouseEvent) => {
+        debugger;
+        setActors(
+          (prevActors) => {
+            return prevActors.map(
+              (prevActor, i) => {
+                if (placeModeActorIndex === i) {
+                  return {
+                    ...prevActor,
+                    posX: (e.x + window.scrollX) / zoomLevel,
+                    posY: (e.y + window.scrollY) / zoomLevel,
+                    isPlaced: true
+                  }
+                }
+                return prevActor
+              }
+            )
+          }
+        )
+        setPlaceModeActorIndex(undefined)
+      }
+      if (typeof placeModeActorIndex === "number") {
+        window.removeEventListener("click", placeModeOnClickHandler)
+        window.addEventListener("click", placeModeOnClickHandler)
+      } else {
+        window.removeEventListener("click", placeModeOnClickHandler)
+      }
+      return () => {
+        window.removeEventListener("click", placeModeOnClickHandler)
+      }
+    },
+    [placeModeActorIndex, zoomLevel]
+  )
+
   return (
     <div className="App">
       <EditCharactersModal open={editCharactersMenuOpen} data={actors} dataSetter={setActors} map={bgRef} openSetter={setEditCharactersMenuOpen} />
@@ -254,38 +290,43 @@ function App() {
         }
         {actors.map(
           (actor, index) => {
-            return (
-              <div
-                className="actor-wrapper"
-                style={
-                  {
-                    left: `${(actor.posX - (2.5 * oneFtInPx)) * zoomLevel}px`,
-                    top:  `${(actor.posY - (2.5 * oneFtInPx)) * zoomLevel}px`,
-                    height: `${fiveFtInPx * zoomLevel}px`,
-                    width: `${fiveFtInPx * zoomLevel}px`
-                  }
-                }
-              >
-                <div className="radius"
-                  style={
-                    actor.moveRadiusFt && (moveModeActorIndex === index)
-                      ? {
-                        height: `${zoomLevel * oneFtInPx * ((2.5 + actor.moveRadiusFt) * 2)}px`,
-                        width:  `${zoomLevel * oneFtInPx * ((2.5 + actor.moveRadiusFt) * 2)}px`
-                      }
-                      : {}
-                  }
-                ></div>
-                <div
-                  className={`actor${actor.highlighted ? " highlighted" : ""}`}
+            return actor.isPlaced
+              ? <div
+                  className="actor-wrapper"
                   style={
                     {
-                      background: actor.color
+                      left: `${(actor.posX - (2.5 * oneFtInPx)) * zoomLevel}px`,
+                      top:  `${(actor.posY - (2.5 * oneFtInPx)) * zoomLevel}px`,
+                      height: `${fiveFtInPx * zoomLevel}px`,
+                      width: `${fiveFtInPx * zoomLevel}px`
                     }
                   }
-                ></div>
-              </div>
-            )
+                >
+                  <div className="radius"
+                    style={
+                      cheatMoveActive
+                        ? {
+                          height: "0",
+                          width: "0"
+                        }
+                        : actor.moveRadiusFt && (moveModeActorIndex === index)
+                          ? {
+                            height: `${zoomLevel * oneFtInPx * ((2.5 + actor.moveRadiusFt) * 2)}px`,
+                            width:  `${zoomLevel * oneFtInPx * ((2.5 + actor.moveRadiusFt) * 2)}px`
+                          }
+                          : {}
+                    }
+                  ></div>
+                  <div
+                    className={`actor${actor.highlighted || (index === moveModeActorIndex && cheatMoveActive) ? " highlighted" : ""}`}
+                    style={
+                      {
+                        background: actor.color
+                      }
+                    }
+                  ></div>
+                </div>
+              : <></>
           }
         )}
       </div>
@@ -299,39 +340,53 @@ function App() {
                   (actor, index) => {
                     return (
                       <li
+                        className={`${actor.isPlaced ? "" : "not-placed"}`}
                         key={actor.id}
                         onMouseEnter={()=> {
-                          setActors((prevActors) => {
-                            return prevActors.map((prevActor) => {
-                              if (prevActor.id === actor.id) {
-                                return {
-                                  ...prevActor,
-                                  highlighted: true
+                          if (actor.isPlaced) {
+                            setActors((prevActors) => {
+                              return prevActors.map((prevActor) => {
+                                if (prevActor.id === actor.id) {
+                                  return {
+                                    ...prevActor,
+                                    highlighted: true
+                                  }
                                 }
-                              }
-                              return prevActor;
-                            });
-                          })
+                                return prevActor;
+                              });
+                            })
+                          }
                         }}
                         onMouseLeave={()=> {
-                          setActors((prevActors) => {
-                            return prevActors.map((prevActor) => {
-                              if (prevActor.id === actor.id) {
-                                return {
-                                  ...prevActor,
-                                  highlighted: false
+                          if (actor.isPlaced) {
+                            setActors((prevActors) => {
+                              return prevActors.map((prevActor) => {
+                                if (prevActor.id === actor.id) {
+                                  return {
+                                    ...prevActor,
+                                    highlighted: false
+                                  }
                                 }
-                              }
-                              return prevActor;
-                            });
-                          })
+                                return prevActor;
+                              });
+                            })
+                          }
                         }}
                       >
                         <span className='blob' style={{background: actor.color}}></span>
                         <span className="name">{actor.displayName}</span>
                         <small>{actor.playerName}</small>
                         <div className="actor-buttons">
-                          <button onClick={(e) => {
+                          <button className="place" disabled={actor.isPlaced} onClick={(e) => {
+                            e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
+                            debugger;
+                            if (typeof placeModeActorIndex !== "number") {
+                              setPlaceModeActorIndex(index)
+                            } else {
+                              setMoveModeActorIndex(undefined)
+                            }
+                          }}>👇🏻</button>
+                          <button disabled={!actor.isPlaced} onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                             setCheatMoveActive(false)
                             if (typeof moveModeActorIndex !== "number") {
@@ -370,7 +425,7 @@ function App() {
                               setMoveModeMoveTooFar(false) //resets cursor
                             }
                           }}>🏃🏻‍♀️‍➡️</button>
-                          <button onClick={(e) => {
+                          <button disabled={!actor.isPlaced} onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                             setCheatMoveActive(true)
                             if (typeof moveModeActorIndex !== "number") {
@@ -409,7 +464,7 @@ function App() {
                               setMoveModeMoveTooFar(false) //resets cursor
                             }
                           }}>😇</button>
-                          <button>🗡️</button>
+                          <button disabled={!actor.isPlaced}>🗡️</button>
                         </div>
                       </li>
                     )
@@ -419,7 +474,7 @@ function App() {
             }
           </ul>
           <button
-            disabled={typeof moveModeActorIndex === "number"}
+            disabled={typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
             onClick={() => {
               setEditCharactersMenuOpen(true)
             }}
