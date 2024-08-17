@@ -27,6 +27,7 @@ function App() {
   const [sideB, setSideB] = useState<number>(0)
   const [sideC, setSideC] = useState<number>(0)
   const [moveModeAngle, setMoveModeAngle] = useState<number>(0)
+  const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
   // const [bg1HeightAtDefaultZoom, setBG1HeightAtDefaultZoom] = useState<number>(0)
   // const [leftMouseDown, setLeftMouseDown] = useState<boolean>(false)
   // const [middleMouseDown, setMiddleMouseDown] = useState<boolean>(false)
@@ -173,16 +174,29 @@ function App() {
   useEffect(
     () => {
       if (typeof moveMode === "number") {
-        const actorPositionX = actors[moveMode].posX
-        const actorPositionY = actors[moveMode].posY
+        const actorPositionX = actors[moveMode].posX * zoomLevel
+        const actorPositionY = actors[moveMode].posY * zoomLevel
         window.addEventListener("mousemove", (e) => {
-          const sA = e.x - ((actorPositionX * zoomLevel) - (2.5 * oneFtInPx * zoomLevel))
-          const sB = e.y - ((actorPositionY * zoomLevel) - (2.5 * oneFtInPx * zoomLevel))
+          const sA = e.x - actorPositionX
+          const sB = e.y - actorPositionY
           const sC = Math.sqrt((sA * sA) + (sB * sB))
-          const a = radiansCoefficient * Math.asin(sB / sC)
+          let a = radiansCoefficient * Math.asin(sB / sC)
+          if (sC < 0) {
+            a = a * -1
+          }
           debugger;
+          setSideA(sA)
+          setSideB(sB)
           setSideC(sC)
           setMoveModeAngle(a)
+          setCustomMessage(
+            <>
+              <div>e.x: {e.x}</div>
+              <div>e.y: {e.y}</div>
+              <div>aX: {actorPositionX}</div>
+              <div>aY: {actorPositionY}</div>
+            </>
+          )
 
         })
       }
@@ -210,8 +224,8 @@ function App() {
             className="line"
             style={
               {
-                left: (zoomLevel * ((2.5 * oneFtInPx) + actors[moveMode].posX)),
-                top:  (zoomLevel * ((2.5 * oneFtInPx) + actors[moveMode].posY)),
+                left: (zoomLevel * (actors[moveMode].posX)),
+                top:  (zoomLevel * (actors[moveMode].posY)),
                 width: `${sideC * zoomLevel}px`,
                 transform: `rotate(${moveModeAngle}deg)`
                 
@@ -227,8 +241,8 @@ function App() {
               className="actor-wrapper"
               style={
                 {
-                  left: `${actor.posX * zoomLevel}px`,
-                  top: `${actor.posY * zoomLevel}px`,
+                  left: `${(actor.posX - (2.5 * oneFtInPx)) * zoomLevel}px`,
+                  top: `${(actor.posY - (2.5 * oneFtInPx)) * zoomLevel}px`,
                   height: `${fiveFtInPx * zoomLevel}px`,
                   width: `${fiveFtInPx * zoomLevel}px`
                 }
@@ -257,11 +271,11 @@ function App() {
         }
       )}
       <div className="controls" style={{display: showControls ? "block" : "none"}}>
-      {sideA && <div>{sideA}</div>}
-      {sideB && <div>{sideB}</div>}
-      {sideC && <div>{sideC}</div>}
-      {moveModeAngle && <div>{moveModeAngle}</div>}
-      
+        <div>a: {typeof sideA === "number" ? sideA : "UNSET"}</div>
+        <div>b: {typeof sideB === "number" ? sideB : "UNSET"}</div>
+        <div>c: {typeof sideC === "number" ? sideC : "UNSET"}</div>
+        <div>m: {typeof moveModeAngle === "number" ? moveModeAngle : "UNSET"}</div>
+        {customMessage}
         <div className="actors-list-section">
           <h1>Characters</h1>
           <ul>
