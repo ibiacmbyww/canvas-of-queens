@@ -186,7 +186,6 @@ function App() {
       }
     
       const moveModeOnClickHandler = (e: MouseEvent) => {
-        debugger;
         if (!moveModeMoveTooFar) {
           setActors(
             (prevActors) => {
@@ -228,13 +227,11 @@ function App() {
   useEffect(
     () => {
       const placeModeOnClickHandler = (e: MouseEvent) => {
-        debugger;
         setActors(
           (prevActors) => {
             return prevActors.map(
               (prevActor, i) => {
                 if (placeModeActorIndex === i) {
-                  debugger;
                   return {
                     ...prevActor,
                     posX: (e.x + window.scrollX) / zoomLevel,
@@ -300,7 +297,14 @@ function App() {
                   height: `${fiveFtInPx * zoomLevel}px`,
                 }
               }
-            ></div>
+            >
+              <span>
+                {
+                  parseFloat(
+                      (((moveModeTriangleSideC / oneFtInPx) - 2.5) / zoomLevel).toFixed(1)
+                  )
+                }ft</span>
+            </div>
           : <></>
         }
         {typeof moveModeActorIndex === "number"
@@ -346,6 +350,10 @@ function App() {
                           : {}
                     }
                   ></div>
+                  <div className="info">
+                    <span className="name">{actor.displayName}</span>
+                    <small>{actor.playerName}</small>
+                  </div>
                   <div
                     className={`actor${actor.highlighted || (index === moveModeActorIndex && cheatMoveActive) ? " highlighted" : ""}`}
                     style={
@@ -409,7 +417,6 @@ function App() {
                           <button className="place" onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                             if (!actor.isPlaced) {
-                              debugger;
                               setActors(
                                 (prevActors) => {
                                   return prevActors.map(

@@ -35,7 +35,6 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
     const [newCharacterDisplayName, setNewCharacterDisplayName] = useState<string>("New Character")
     const [isInScene, setIsInScene] = useState<boolean[]>(
       () => {
-        debugger;
         return data.map((v) => {return v.isPlaced})
       }
     )
@@ -83,7 +82,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         //@ts-ignore-next-line
                         case "actor-movement": newKey = "moveFt"; v = parseInt(v); break;
                         //@ts-ignore-next-line
-                        case "actor-placed": debugger; newKey = "isPlaced"; v = v.toString() === "on"; break;
+                        case "actor-placed": newKey = "isPlaced"; v = v.toString() === "on"; break;
                         //@ts-ignore-next-line
                         case "actor-posx": newKey = "posX"; v = parseInt(v); break;
                         //@ts-ignore-next-line
@@ -171,7 +170,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                   <label htmlFor={`actor-placed-${index}`}>
                                     Character is in scene:
                                   </label>
-                                  <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={((tfsdfsdfsdfsdf) => {debugger;return true})(tempActor) && tempActor.isPlaced} onChange={(e) => {
+                                  <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={tempActor.isPlaced} onChange={(e) => {
                                     setIsInScene(
                                       (prevIsInScene) => {
                                         if (e.target.checked) {
