@@ -380,6 +380,20 @@ function App() {
                           <button className="place" disabled={actor.isPlaced} onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                             debugger;
+                            setActors(
+                              (prevActors) => {
+                                return prevActors.map(
+                                  (prevActor, i) => {
+                                    return {
+                                      ...prevActor,
+                                      moveRadiusFt: undefined
+                                    }
+                                  }
+                                )
+                              }
+                            )
+                            setMoveModeActorIndex(undefined)
+                            setMoveModeMoveTooFar(false) //resets cursor
                             if (typeof placeModeActorIndex !== "number") {
                               setPlaceModeActorIndex(index)
                             } else {
@@ -464,7 +478,7 @@ function App() {
                               setMoveModeMoveTooFar(false) //resets cursor
                             }
                           }}>😇</button>
-                          <button disabled={!actor.isPlaced}>🗡️</button>
+                          {/* <button disabled={!actor.isPlaced}>🗡️</button> */}
                         </div>
                       </li>
                     )
