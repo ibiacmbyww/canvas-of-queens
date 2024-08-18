@@ -23,7 +23,8 @@ function App() {
   const [moveModeAngle, setMoveModeAngle] = useState<number>(0)
   const [moveModeMoveTooFar, setMoveModeMoveTooFar] = useState<boolean>(false)
   const [cheatMoveActive, setCheatMoveActive] = useState<boolean>(false)
-  
+  const [moveModeEX, setMoveModeEX] = useState<number>(0)
+  const [moveModeEY, setMoveModeEY] = useState<number>(0)
   const [placeModeActorIndex, setPlaceModeActorIndex] = useState<undefined | number>(undefined)
 
   const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
@@ -165,6 +166,8 @@ function App() {
           const sB = (window.scrollY + event.y) - actorPositionY
           const sC = Math.sqrt((sA * sA) + (sB * sB))
           let a = radiansCoefficient * Math.atan2(sB, sA)
+          setMoveModeEX(event.x)
+          setMoveModeEY(event.y)
           setMoveModeTriangleSideC(sC)
           setMoveModeAngle(a)
           setMoveModeMoveTooFar(cheatMoveActive ? false : sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
@@ -246,14 +249,25 @@ function App() {
         )
         setPlaceModeActorIndex(undefined)
       }
+      const placeModeUpdateMouseTracking = (event: MouseEvent) => {
+        // event.stopPropagation()
+        if (typeof placeModeActorIndex === "number") {
+          setMoveModeEX(event.x)
+          setMoveModeEY(event.y)
+        }
+      }
       if (typeof placeModeActorIndex === "number") {
         window.removeEventListener("click", placeModeOnClickHandler)
+        window.removeEventListener("mousemove", placeModeUpdateMouseTracking)
         window.addEventListener("click", placeModeOnClickHandler)
+        window.addEventListener("mousemove", placeModeUpdateMouseTracking)
       } else {
         window.removeEventListener("click", placeModeOnClickHandler)
+        window.removeEventListener("mousemove", placeModeUpdateMouseTracking)
       }
       return () => {
         window.removeEventListener("click", placeModeOnClickHandler)
+        window.removeEventListener("mousemove", placeModeUpdateMouseTracking)
       }
     },
     [placeModeActorIndex, zoomLevel]
@@ -275,6 +289,20 @@ function App() {
         onLoad={bgLoadedHandler}
       />
       <div className={`canvas${moveModeMoveTooFar ? " too-far" : ""}`} ref={canvasRef}>
+        {typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"
+          ? <div
+              className="ghost"
+              style={
+                {
+                  left: `${moveModeEX}px`,
+                  top:  `${moveModeEY}px`,
+                  width: `${fiveFtInPx * zoomLevel}px`,
+                  height: `${fiveFtInPx * zoomLevel}px`,
+                }
+              }
+            ></div>
+          : <></>
+        }
         {typeof moveModeActorIndex === "number"
           ? <div
               className="line"
