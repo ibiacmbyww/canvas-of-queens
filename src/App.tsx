@@ -231,6 +231,7 @@ function App() {
             return prevActors.map(
               (prevActor, i) => {
                 if (placeModeActorIndex === i) {
+                  debugger;
                   return {
                     ...prevActor,
                     posX: (e.x + window.scrollX) / zoomLevel,

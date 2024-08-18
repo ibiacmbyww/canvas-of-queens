@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import "./EditCharactersModal.scss"
 import Actor from '../../types/Actor';
 import Colors from '../../types/Colors';
@@ -35,8 +35,17 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
     const [newCharacterDisplayName, setNewCharacterDisplayName] = useState<string>("New Character")
     const [isInScene, setIsInScene] = useState<boolean[]>(
       () => {
+        debugger;
         return data.map((v) => {return v.isPlaced})
       }
+    )
+    //this feels wrong
+    useEffect(
+      () => {
+        setTempActors(data)
+        setIsInScene(data.map((v) => {return v.isPlaced}))
+      },
+      [data]
     )
     return open
       ? (
@@ -162,7 +171,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                   <label htmlFor={`actor-placed-${index}`}>
                                     Character is in scene:
                                   </label>
-                                  <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={tempActor.isPlaced} onChange={(e) => {
+                                  <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={((tfsdfsdfsdfsdf) => {debugger;return true})(tempActor) && tempActor.isPlaced} onChange={(e) => {
                                     setIsInScene(
                                       (prevIsInScene) => {
                                         if (e.target.checked) {
