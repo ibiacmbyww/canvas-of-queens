@@ -378,27 +378,66 @@ function App() {
                         <span className="name">{actor.displayName}</span>
                         <small>{actor.playerName}</small>
                         <div className="actor-buttons">
-                          <button className="place" disabled={actor.isPlaced} onClick={(e) => {
+                          <button className="place" onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
-                            debugger;
-                            setActors(
-                              (prevActors) => {
-                                return prevActors.map(
-                                  (prevActor, i) => {
-                                    return {
-                                      ...prevActor,
-                                      moveRadiusFt: undefined
+                            if (!actor.isPlaced) {
+                              debugger;
+                              setActors(
+                                (prevActors) => {
+                                  return prevActors.map(
+                                    (prevActor, i) => {
+                                      return {
+                                        ...prevActor,
+                                        moveRadiusFt: undefined
+                                      }
                                     }
+                                  )
+                                }
+                              )
+                              setMoveModeActorIndex(undefined)
+                              setMoveModeMoveTooFar(false) //resets cursor
+                              if (typeof placeModeActorIndex !== "number") {
+                                setPlaceModeActorIndex(index)
+                              } else {
+                                setMoveModeActorIndex(undefined)
+                              }
+                            } else {
+                              setCheatMoveActive(true)
+                              if (typeof moveModeActorIndex !== "number") {
+                                setActors(
+                                  (prevActors) => {
+                                    return prevActors.map(
+                                      (prevActor, i) => {
+                                        return i === index
+                                          ? {
+                                            ...prevActor,
+                                            moveRadiusFt: prevActor.moveFt
+                                          }
+                                          : {
+                                            ...prevActor,
+                                            moveRadiusFt: undefined
+                                          }
+                                      }
+                                    )
                                   }
                                 )
+                                setMoveModeActorIndex(index)
+                              } else {
+                                setActors(
+                                  (prevActors) => {
+                                    return prevActors.map(
+                                      (prevActor) => {
+                                        return {
+                                          ...prevActor,
+                                          moveRadiusFt: typeof prevActor.moveRadiusFt === "number" ? undefined : prevActor.moveRadiusFt
+                                        }
+                                      }
+                                    )
+                                  }
+                                )
+                                setMoveModeActorIndex(undefined)
+                                setMoveModeMoveTooFar(false) //resets cursor
                               }
-                            )
-                            setMoveModeActorIndex(undefined)
-                            setMoveModeMoveTooFar(false) //resets cursor
-                            if (typeof placeModeActorIndex !== "number") {
-                              setPlaceModeActorIndex(index)
-                            } else {
-                              setMoveModeActorIndex(undefined)
                             }
                           }}>👇🏻</button>
                           <button disabled={!actor.isPlaced} onClick={(e) => {
@@ -440,45 +479,6 @@ function App() {
                               setMoveModeMoveTooFar(false) //resets cursor
                             }
                           }}>🏃🏻‍♀️‍➡️</button>
-                          <button disabled={!actor.isPlaced} onClick={(e) => {
-                            e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
-                            setCheatMoveActive(true)
-                            if (typeof moveModeActorIndex !== "number") {
-                              setActors(
-                                (prevActors) => {
-                                  return prevActors.map(
-                                    (prevActor, i) => {
-                                      return i === index
-                                        ? {
-                                          ...prevActor,
-                                          moveRadiusFt: prevActor.moveFt
-                                        }
-                                        : {
-                                          ...prevActor,
-                                          moveRadiusFt: undefined
-                                        }
-                                    }
-                                  )
-                                }
-                              )
-                              setMoveModeActorIndex(index)
-                            } else {
-                              setActors(
-                                (prevActors) => {
-                                  return prevActors.map(
-                                    (prevActor) => {
-                                      return {
-                                        ...prevActor,
-                                        moveRadiusFt: typeof prevActor.moveRadiusFt === "number" ? undefined : prevActor.moveRadiusFt
-                                      }
-                                    }
-                                  )
-                                }
-                              )
-                              setMoveModeActorIndex(undefined)
-                              setMoveModeMoveTooFar(false) //resets cursor
-                            }
-                          }}>😇</button>
                           {/* <button disabled={!actor.isPlaced}>🗡️</button> */}
                         </div>
                       </li>
