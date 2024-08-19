@@ -4,7 +4,10 @@ import './App.scss';
 import Actor from './types/Actor';
 import Colors from './types/Colors';
 import EditCharactersModal from './components/EditCharactersModal/EditCharactersModal';
-
+import { FaExplosion } from "react-icons/fa6";
+import { FaRegEdit } from "react-icons/fa";
+import { MdPinDrop } from "react-icons/md";
+import { IoMdMove } from "react-icons/io";
 function App() {
   const radiansCoefficient = 180 / Math.PI
   
@@ -52,8 +55,8 @@ function App() {
           color: Colors.Red,
           moveFt: 35,
           isPlaced: true,
-          posX: 1600,
-          posY: 200,
+          posX: 1400,
+          posY: 280,
           highlighted: false,
           isDeleted: false,
           moveRadiusFt: undefined
@@ -171,17 +174,18 @@ function App() {
           setMoveModeTriangleSideC(sC)
           setMoveModeAngle(a)
           setMoveModeMoveTooFar(cheatMoveActive ? false : sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
-          // setCustomMessage(
-          //   <>
+          setCustomMessage(
+            <>
+              <div>sC: {sC}</div>
+            </>
+          )
+          // )
           //     <div>moveRadiusFt: {moveRadiusFt}</div>
           //     <div>actorPositionX: {actorPositionX}</div>
           //     <div>actorPositionY: {actorPositionY}</div>
           //     <div>sA: {sA}</div>
           //     <div>sB: {sB}</div>
-          //     <div>sC: {sC}</div>
           //     <div>moveModeMoveTooFar: {sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel) ? "Too far" : "OK"}</div>
-          //   </>
-          // )
         }
       }
     
@@ -298,12 +302,14 @@ function App() {
                 }
               }
             >
-              <span>
-                {
-                  parseFloat(
-                      (((moveModeTriangleSideC / oneFtInPx) - 2.5) / zoomLevel).toFixed(1)
-                  )
-                }ft</span>
+              {typeof moveModeActorIndex === "number" && 
+                <span>
+                  {
+                    parseFloat(
+                        (((-2.5 * zoomLevel) + (moveModeTriangleSideC / oneFtInPx)) / zoomLevel).toFixed(1)
+                    )
+                  }ft</span>
+                }
             </div>
           : <></>
         }
@@ -368,7 +374,8 @@ function App() {
         )}
       </div>
       <div className="controls" style={{display: showControls ? "block" : "none"}}>
-        {customMessage}
+        {/* {customMessage} */}
+        <h3>Map Zoom: {zoomLevel.toFixed(1)}</h3>
         <div className="actors-list-section">
           <h1>Characters</h1>
           <ul>
@@ -474,7 +481,7 @@ function App() {
                                 setMoveModeMoveTooFar(false) //resets cursor
                               }
                             }
-                          }}>👇🏻</button>
+                          }}><MdPinDrop /></button>
                           <button disabled={!actor.isPlaced} onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                             setCheatMoveActive(false)
@@ -513,7 +520,7 @@ function App() {
                               setMoveModeActorIndex(undefined)
                               setMoveModeMoveTooFar(false) //resets cursor
                             }
-                          }}>🏃🏻‍♀️‍➡️</button>
+                          }}><IoMdMove /></button>
                           {/* <button disabled={!actor.isPlaced}>🗡️</button> */}
                         </div>
                       </li>
@@ -529,7 +536,15 @@ function App() {
               setEditCharactersMenuOpen(true)
             }}
           >
-            ✒️ Edit Characters
+            <FaRegEdit /> Edit Characters
+          </button>
+          <button
+            disabled={typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
+            onClick={() => {
+              setEditCharactersMenuOpen(true)
+            }}
+          >
+            <FaExplosion /> Start Battle
           </button>
         </div>
       </div>
