@@ -8,6 +8,7 @@ import { FaExplosion } from "react-icons/fa6";
 import { FaRegEdit } from "react-icons/fa";
 import { MdPinDrop } from "react-icons/md";
 import { IoMdMove } from "react-icons/io";
+import StartBattleModal from './components/StartBattleModal/StartBattleModal';
 function App() {
   const radiansCoefficient = 180 / Math.PI
   
@@ -29,6 +30,7 @@ function App() {
   const [moveModeEX, setMoveModeEX] = useState<number>(0)
   const [moveModeEY, setMoveModeEY] = useState<number>(0)
   const [placeModeActorIndex, setPlaceModeActorIndex] = useState<undefined | number>(undefined)
+  const [battleModeActive, setBattleModeActive] = useState<boolean>(false)
 
   const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
 
@@ -46,7 +48,10 @@ function App() {
           posY: 600,
           highlighted: false,
           isDeleted: false,
-          moveRadiusFt: undefined
+          moveRadiusFt: undefined,
+          initiative: undefined,
+          initiativeModifier: 7,
+          initiativeTiebreaker: 4
         },
         {
           id: 1,
@@ -59,7 +64,10 @@ function App() {
           posY: 280,
           highlighted: false,
           isDeleted: false,
-          moveRadiusFt: undefined
+          moveRadiusFt: undefined,
+          initiative: undefined,
+          initiativeModifier: 9,
+          initiativeTiebreaker: 4
         }
       ]
     }
@@ -277,6 +285,7 @@ function App() {
   return (
     <div className="App">
       <EditCharactersModal open={editCharactersMenuOpen} data={actors} dataSetter={setActors} map={bgRef} openSetter={setEditCharactersMenuOpen} />
+      <StartBattleModal open={!editCharactersMenuOpen} actors={actors} dataSetter={setActors} map={bgRef} openSetter={setEditCharactersMenuOpen} />
       <img
         alt=""
         src={bg1}

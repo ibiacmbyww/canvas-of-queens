@@ -10,6 +10,9 @@ type Actor = {
   isPlaced: boolean;
   highlighted: boolean;
   isDeleted: boolean;
+  initiative: number | undefined;
+  initiativeModifier: number;
+  initiativeTiebreaker: number;
 }
 
 export default Actor

@@ -105,6 +105,10 @@
         }
       }
     }
+
+    & > div > button {
+      margin-bottom: 1rem;
+    }
   }
 
   .canvas {

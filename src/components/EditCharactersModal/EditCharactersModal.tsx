@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import "./EditCharactersModal.scss"
 import Actor from '../../types/Actor';
 import Colors from '../../types/Colors';
+import { FaCheck, FaX } from 'react-icons/fa6';
 
 type Props = {
     // Define your prop types here
@@ -254,7 +255,10 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                               posY: 0,
                               highlighted: false,
                               isDeleted: false,
-                              moveRadiusFt: undefined
+                              moveRadiusFt: undefined,
+                              initiative: undefined,
+                              initiativeModifier: 5,
+                              initiativeTiebreaker: 4
                             }
                           ]
                           return x
@@ -276,14 +280,14 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                   type="submit"
                   form="actor-form-0"
                   className="confirm-button"
-                >✔️ Confirm</button>
+                ><FaCheck /> Confirm</button>
                 <button
                   className="cancel-button"
                   type="button"
                   onClick={(e) => {
                     openSetter(false)
                 }}>
-                  ❌ Cancel
+                  <FaX /> Cancel
                 </button>
               </div>
             </div>
