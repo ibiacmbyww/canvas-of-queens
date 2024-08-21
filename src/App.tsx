@@ -1,16 +1,73 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import bg1 from "./img/bg1.png";
 import './App.scss';
 import Actor from './types/Actor';
 import Colors from './types/Colors';
 import EditCharactersModal from './components/EditCharactersModal/EditCharactersModal';
-import { FaExplosion } from "react-icons/fa6";
+import { FaBan, FaExplosion } from "react-icons/fa6";
 import { FaRegEdit } from "react-icons/fa";
 import { MdPinDrop } from "react-icons/md";
 import { IoMdMove } from "react-icons/io";
-import StartBattleModal from './components/StartBattleModal/StartBattleModal';
+import rollDice from './utils/rollDice';
+import sortActorsByInitiative from './utils/sortActorsByInitiative';
 function App() {
   const radiansCoefficient = 180 / Math.PI
+  const [actors, setActors] = useState<Actor[]>(
+    () => {
+      return sortActorsByInitiative(
+        [
+          {
+            id: 0,
+            displayName: "Alicia",
+            playerName: "Alice",
+            color: Colors.Purple,
+            moveFt: 25,
+            isPlaced: false,
+            posX: 700,
+            posY: 600,
+            highlighted: false,
+            isDeleted: false,
+            moveRadiusFt: undefined,
+            initiative: rollDice(20) + 7, // 7 = initiativeModifier
+            initiativeModifier: 7,
+            initiativeTiebreaker: 4
+          },
+          {
+            id: 1,
+            displayName: "Lt. Silbok",
+            playerName: "GM",
+            color: Colors.Vermilion,
+            moveFt: 35,
+            isPlaced: true,
+            posX: 1608,
+            posY: 420,
+            highlighted: false,
+            isDeleted: false,
+            moveRadiusFt: undefined,
+            initiative: rollDice(20) + 9, // 9 = initiativeModifier
+            initiativeModifier: 9,
+            initiativeTiebreaker: 4
+          },
+          {
+            id: 2,
+            displayName: "Sgt. Bayez",
+            playerName: "GM",
+            color: Colors.Red,
+            moveFt: 35,
+            isPlaced: true,
+            posX: 1400,
+            posY: 280,
+            highlighted: false,
+            isDeleted: false,
+            moveRadiusFt: undefined,
+            initiative: rollDice(20) + 5,
+            initiativeModifier: 5, // 9 = initiativeModifier
+            initiativeTiebreaker: 3
+          }
+        ]
+      )
+    }
+  )
   
   const [fiveFtInPx] = useState<number>(70)
   const [oneFtInPx] = useState<number>(14)
@@ -18,7 +75,7 @@ function App() {
   const [minZoomLevel, setMinZoomLevel] = useState<number>(1)
   const [maxZoomLevel, setMaxZoomLevel] = useState<number>(1)
   const [showControls, setShowControls] = useState<boolean>(true)
-  const [zoomIncrementBy] = useState<number>(0.1)
+  const [zoomIncrementBy] = useState<number>(0.05)
   const [editCharactersMenuOpen, setEditCharactersMenuOpen] = useState<boolean>(false)
   const [bg1WidthAtDefaultZoom, setBG1WidthAtDefaultZoom] = useState<number>(0)
 
@@ -26,52 +83,16 @@ function App() {
   const [moveModeTriangleSideC, setMoveModeTriangleSideC] = useState<number>(0)
   const [moveModeAngle, setMoveModeAngle] = useState<number>(0)
   const [moveModeMoveTooFar, setMoveModeMoveTooFar] = useState<boolean>(false)
-  const [cheatMoveActive, setCheatMoveActive] = useState<boolean>(false)
   const [moveModeEX, setMoveModeEX] = useState<number>(0)
   const [moveModeEY, setMoveModeEY] = useState<number>(0)
+
   const [placeModeActorIndex, setPlaceModeActorIndex] = useState<undefined | number>(undefined)
+  const [placeMoveActive, setPlaceMoveActive] = useState<boolean>(false)
+
   const [battleModeActive, setBattleModeActive] = useState<boolean>(false)
 
-  const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
+  // const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
 
-  const [actors, setActors] = useState<Actor[]>(
-    () => {
-      return [
-        {
-          id: 0,
-          displayName: "Alicia",
-          playerName: "Alice",
-          color: Colors.Purple,
-          moveFt: 25,
-          isPlaced: false,
-          posX: 700,
-          posY: 600,
-          highlighted: false,
-          isDeleted: false,
-          moveRadiusFt: undefined,
-          initiative: undefined,
-          initiativeModifier: 7,
-          initiativeTiebreaker: 4
-        },
-        {
-          id: 1,
-          displayName: "Lt. Silbok",
-          playerName: "GM",
-          color: Colors.Red,
-          moveFt: 35,
-          isPlaced: true,
-          posX: 1400,
-          posY: 280,
-          highlighted: false,
-          isDeleted: false,
-          moveRadiusFt: undefined,
-          initiative: undefined,
-          initiativeModifier: 9,
-          initiativeTiebreaker: 4
-        }
-      ]
-    }
-  )
   const bgRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
 
@@ -181,12 +202,12 @@ function App() {
           setMoveModeEY(event.y)
           setMoveModeTriangleSideC(sC)
           setMoveModeAngle(a)
-          setMoveModeMoveTooFar(cheatMoveActive ? false : sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
-          setCustomMessage(
-            <>
-              <div>sC: {sC}</div>
-            </>
-          )
+          setMoveModeMoveTooFar(placeMoveActive ? false : sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
+          // setCustomMessage(
+          //   <>
+          //     <div>sC: {sC}</div>
+          //   </>
+          // )
           // )
           //     <div>moveRadiusFt: {moveRadiusFt}</div>
           //     <div>actorPositionX: {actorPositionX}</div>
@@ -285,7 +306,6 @@ function App() {
   return (
     <div className="App">
       <EditCharactersModal open={editCharactersMenuOpen} data={actors} dataSetter={setActors} map={bgRef} openSetter={setEditCharactersMenuOpen} />
-      <StartBattleModal open={!editCharactersMenuOpen} actors={actors} dataSetter={setActors} map={bgRef} openSetter={setEditCharactersMenuOpen} />
       <img
         alt=""
         src={bg1}
@@ -352,7 +372,7 @@ function App() {
                 >
                   <div className="radius"
                     style={
-                      cheatMoveActive
+                      placeMoveActive
                         ? {
                           height: "0",
                           width: "0"
@@ -370,7 +390,7 @@ function App() {
                     <small>{actor.playerName}</small>
                   </div>
                   <div
-                    className={`actor${actor.highlighted || (index === moveModeActorIndex && cheatMoveActive) ? " highlighted" : ""}`}
+                    className={`actor${actor.highlighted || (index === moveModeActorIndex && placeMoveActive) ? " highlighted" : ""}`}
                     style={
                       {
                         background: actor.color
@@ -384,7 +404,7 @@ function App() {
       </div>
       <div className="controls" style={{display: showControls ? "block" : "none"}}>
         {/* {customMessage} */}
-        <h3>Map Zoom: {zoomLevel.toFixed(1)}</h3>
+        <h3>Map Zoom: {zoomLevel.toFixed(2)}</h3>
         <div className="actors-list-section">
           <h1>Characters</h1>
           <ul>
@@ -428,9 +448,9 @@ function App() {
                       >
                         <span className='blob' style={{background: actor.color}}></span>
                         <span className="name">{actor.displayName}</span>
-                        <small>{actor.playerName}</small>
+                        <small>{actor.initiative ?? "n/a"} {actor.initiativeModifier} {actor.initiativeTiebreaker}</small>
                         <div className="actor-buttons">
-                          <button className="place" onClick={(e) => {
+                          <button className={`place${typeof placeModeActorIndex === "number" && placeModeActorIndex === index ? "active" : ""}`} onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                             if (!actor.isPlaced) {
                               setActors(
@@ -453,7 +473,7 @@ function App() {
                                 setMoveModeActorIndex(undefined)
                               }
                             } else {
-                              setCheatMoveActive(true)
+                              setPlaceMoveActive(true)
                               if (typeof moveModeActorIndex !== "number") {
                                 setActors(
                                   (prevActors) => {
@@ -493,7 +513,7 @@ function App() {
                           }}><MdPinDrop /></button>
                           <button disabled={!actor.isPlaced} onClick={(e) => {
                             e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
-                            setCheatMoveActive(false)
+                            setPlaceMoveActive(false)
                             if (typeof moveModeActorIndex !== "number") {
                               setActors(
                                 (prevActors) => {
@@ -550,10 +570,30 @@ function App() {
           <button
             disabled={typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
             onClick={() => {
-              setEditCharactersMenuOpen(true)
+              setBattleModeActive(!battleModeActive)
+              if (battleModeActive) {
+              } else {
+                setActors(
+                  (prevActors) => {
+                    return sortActorsByInitiative(
+                      prevActors.map(
+                        (prevActor) => {
+                          return {
+                            ...prevActor,
+                            initiative: rollDice(20) + prevActor.initiativeModifier
+                          }
+                        }
+                      )
+                    )
+                  }
+                )
+              }
             }}
           >
-            <FaExplosion /> Start Battle
+            {battleModeActive
+              ? <><FaBan /> End Combat</>
+              : <><FaExplosion /> Start Combat</>
+            }
           </button>
         </div>
       </div>

@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import "./EditCharactersModal.scss"
 import Actor from '../../types/Actor';
 import Colors from '../../types/Colors';
-import { FaCheck, FaX } from 'react-icons/fa6';
+import { FaCheck, FaDice, FaX } from 'react-icons/fa6';
+import sortActorsByInitiative from '../../utils/sortActorsByInitiative';
+import rollDice from '../../utils/rollDice';
 
 type Props = {
     // Define your prop types here
@@ -34,16 +36,10 @@ type Props = {
 const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, openSetter}) => {
     const [tempActors, setTempActors] = useState<Actor[]>(data)
     const [newCharacterDisplayName, setNewCharacterDisplayName] = useState<string>("New Character")
-    const [isInScene, setIsInScene] = useState<boolean[]>(
-      () => {
-        return data.map((v) => {return v.isPlaced})
-      }
-    )
     //this feels wrong
     useEffect(
       () => {
         setTempActors(data)
-        setIsInScene(data.map((v) => {return v.isPlaced}))
       },
       [data]
     )
@@ -68,7 +64,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                   Object.entries(formsJSON).forEach(
                     ([k, v], i) => {
                       const keyChunks = k.split("-")
-                      const newIndex = keyChunks.splice(keyChunks.length - 1, 1)[0]
+                      const newIndex = keyChunks.splice(keyChunks.length - 1)[0]
                       let newKey = keyChunks.join("-")
                       index = parseInt(newIndex)
                       switch (newKey) {
@@ -97,6 +93,12 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                             ? parseInt(v)
                             : undefined;
                         break;
+                        //@ts-ignore-next-line
+                        case "actor-ini": newKey = "initiative"; v = parseInt(v); break;
+                        //@ts-ignore-next-line
+                        case "actor-ini-mod": newKey = "initiativeModifier"; v = parseInt(v); break;
+                        //@ts-ignore-next-line
+                        case "actor-ini-tie": newKey = "initiativeTiebreaker"; v = parseInt(v); break;
                       // const num: number = parseInt(keyChunks.at(-1)?? "0")
                       }
                       outerSan[index] = {
@@ -128,7 +130,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                     }
                   )
                   openSetter(false)
-                  dataSetter(outerSan as Actor[])
+                  dataSetter(sortActorsByInitiative(outerSan as Actor[]))
                   setTempActors(outerSan as Actor[])
                 }}
               >
@@ -138,95 +140,143 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         (tempActor, index) => {
                           return (
                             <li key={tempActor.id} className={`${tempActor.isDeleted ? "is-deleted" : ""}`}>
-                                <span className='blob' style={{background: tempActor.color}}></span>
-                                <div className="attributes-list">
-                                  <input type="hidden" value={tempActor.id} name={`actor-id-${index}`} />
-                                  <input type="hidden" value={"" + tempActor.isDeleted} name={`actor-deleted-${index}`} />
-                                  <input type="hidden" value={"" + tempActor.moveRadiusFt} name={`actor-radius-${index}`} />
-                                  <label htmlFor={`actor-display-name-${index}`}>
-                                    Display name:
-                                  </label>
-                                  <input name={`actor-display-name-${index}`} id={`actor-display-name-${index}`} type="text" defaultValue={tempActor.displayName} />
+                              <span className='blob' style={{background: tempActor.color}}></span>
+                              <div className="attributes-list">
+                                <input type="hidden" value={tempActor.id} name={`actor-id-${index}`} />
+                                <input type="hidden" value={"" + tempActor.isDeleted} name={`actor-deleted-${index}`} />
+                                <input type="hidden" value={"" + tempActor.moveRadiusFt} name={`actor-radius-${index}`} />
+                                <label htmlFor={`actor-display-name-${index}`}>
+                                  Display name:
+                                </label>
+                                <input name={`actor-display-name-${index}`} id={`actor-display-name-${index}`} type="text" defaultValue={tempActor.displayName} />
 
-                                  <label htmlFor={`actor-player-name-${index}`}>
-                                    Player name:
-                                  </label>
-                                  <input name={`actor-player-name-${index}`} id={`actor-player-name-${index}`} type="text" defaultValue={tempActor.playerName} />
+                                <label htmlFor={`actor-player-name-${index}`}>
+                                  Player name:
+                                </label>
+                                <input name={`actor-player-name-${index}`} id={`actor-player-name-${index}`} type="text" defaultValue={tempActor.playerName} />
 
-                                  <label htmlFor={`actor-color-${index}`}>
-                                    Color:
-                                  </label>
-                                  <select name={`actor-color-${index}`} id={`actor-color-${index}`}>
+                                <label htmlFor={`actor-color-${index}`}>
+                                  Color:
+                                </label>
+                                <select name={`actor-color-${index}`} id={`actor-color-${index}`}>
 
-                                    {Object.values(Colors).map((v) => {
-                                      return <option selected={tempActor.color === v}>{v}</option>
-                                    })}
-                                  </select>
-                                  <label htmlFor={`actor-movement-${index}`}>
-                                    Movement (ft):
-                                  </label>
-                                  <input name={`actor-movement-${index}`} id={`actor-movement-${index}`} type="number" min="0" max="1000" step="2.5" defaultValue={tempActor.moveFt} />
-                                </div>
-                                <div className="attributes-list">
-                                  <label htmlFor={`actor-placed-${index}`}>
-                                    Character is in scene:
-                                  </label>
-                                  <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={tempActor.isPlaced} onChange={(e) => {
-                                    setIsInScene(
-                                      (prevIsInScene) => {
-                                        if (e.target.checked) {
-                                          return prevIsInScene.map(
-                                            (v, i) => {
-                                              return index === i
-                                                ? true
-                                                : v
-                                            }
-                                          )
-                                        } else {
-                                          return prevIsInScene.map(
-                                            (v, i) => {
-                                              return index === i
-                                                ? false
-                                                : v
+                                  {Object.values(Colors).map((v) => {
+                                    return <option selected={tempActor.color === v}>{v}</option>
+                                  })}
+                                </select>
+                                <label htmlFor={`actor-movement-${index}`}>
+                                  Movement (ft):
+                                </label>
+                                <input name={`actor-movement-${index}`} id={`actor-movement-${index}`} type="number" min="0" max="1000" step="2.5" defaultValue={tempActor.moveFt} />
+                              </div>
+                              <div className="attributes-list">
+                                <label htmlFor={`actor-placed-${index}`}>
+                                  Character is in scene:
+                                </label>
+                                <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={tempActor.isPlaced} onChange={(e) => {
+                                  setTempActors(
+                                    (prevActors) => {
+                                      return prevActors.map(
+                                        (v, i) => {
+                                          return index === i
+                                            ? {
+                                                ...v,
+                                                isPlaced: e.target.checked
+                                              }
+                                            : v
+                                        }
+                                      )
+                                    }
+                                  )
+                                }} />
+                                <label htmlFor={`actor-posx-${index}`}>
+                                  X position:
+                                </label>
+                                <input name={`actor-posx-${index}`} id={`actor-posx-${index}`} type="number" disabled={!tempActor.isPlaced} defaultValue={tempActor.posX} min="0" max={map.current?.naturalWidth ?? 0 - 100} />
+                                <label htmlFor={`actor-posy-${index}`}>
+                                  Y position:
+                                </label>
+                                <input name={`actor-posy-${index}`} id={`actor-posy-${index}`} type="number" disabled={!tempActor.isPlaced} defaultValue={tempActor.posY} min="0" max={map.current?.naturalHeight ?? 0 - 100} />
+                              </div>
+                              <div className="attributes-list">
+                                <label htmlFor={`actor-ini-${index}`}>
+                                  Initiative:
+                                </label>
+                                <div className="roller">
+                                  <input name={`actor-ini-${index}`} id={`actor-ini-${index}`} type="number" min={0} max={99} value={tempActor.initiative} />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setTempActors(
+                                        (tempActors) => {
+                                          return tempActors.map(
+                                            (tempActor, i) => {
+                                              return i === index
+                                                ? {
+                                                    ...tempActor,
+                                                    initiative: rollDice(20) + tempActor.initiativeModifier
+                                                  }
+                                                : tempActor
                                             }
                                           )
                                         }
-                                      }
-                                    )
-                                  }} />
-                                  <label htmlFor={`actor-posx-${index}`}>
-                                    X position:
-                                  </label>
-                                  <input name={`actor-posx-${index}`} id={`actor-posx-${index}`} type="number" disabled={!isInScene[index]} defaultValue={tempActor.posX} min="0" max={map.current?.naturalWidth ?? 0 - 100} />
-                                  <label htmlFor={`actor-posy-${index}`}>
-                                    Y position:
-                                  </label>
-                                  <input name={`actor-posy-${index}`} id={`actor-posy-${index}`} type="number" disabled={!isInScene[index]} defaultValue={tempActor.posY} min="0" max={map.current?.naturalHeight ?? 0 - 100} />
+                                      )
+                                    }}><FaDice /></button>
                                 </div>
-                                <div className="remove-character">
-                                  <button
-                                    type="button"
-                                    onClick={
-                                      (e) => {
-                                        e.stopPropagation();
-                                        setTempActors(
-                                          (prevTempActors) => {
-                                            return prevTempActors.map(
-                                              (pta, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...pta,
-                                                    isDeleted: !pta.isDeleted
-                                                  }
+                                <label htmlFor={`actor-ini-mod-${index}`}>
+                                  Initiative modifier:
+                                </label>
+                                <input
+                                  type="number"
+                                  min={0} max={99}
+                                  defaultValue={tempActor.initiativeModifier}
+                                  name={`actor-ini-mod-${index}`}
+                                  id={`actor-ini-mod-${index}`}
+                                  onChange={(e) => {
+                                    setTempActors(
+                                      (tempActors) => {
+                                        return tempActors.map(
+                                          (tempActor, i) => {
+                                            return i === index
+                                              ? {
+                                                  ...tempActor,
+                                                  initiativeModifier: parseInt(e.target.value)
                                                 }
-                                                return pta
-                                              }
-                                            )
+                                              : tempActor
                                           }
                                         )
                                       }
-                                    }>❌</button>
-                                </div>
+                                    )
+                                  }}
+                                />
+                                <label htmlFor={`actor-ini-tie-${index}`}>
+                                  Initiative tiebreaker:
+                                </label>
+                                <input name={`actor-ini-tie-${index}`} id={`actor-ini-tie-${index}`} type="number" min={0} max={99} defaultValue={tempActor.initiativeTiebreaker} />
+                              </div>
+                              <div className="remove-character">
+                                <button
+                                  type="button"
+                                  onClick={
+                                    (e) => {
+                                      e.stopPropagation();
+                                      setTempActors(
+                                        (prevTempActors) => {
+                                          return prevTempActors.map(
+                                            (prevTempActors, i) => {
+                                              return index === i
+                                                ? {
+                                                    ...prevTempActors,
+                                                    isPlaced: true
+                                                  }
+                                                : prevTempActors
+                                            }
+                                          )
+                                        }
+                                      )
+                                    }
+                                  }>❌</button>
+                              </div>
                             </li>
                           )
                         }
@@ -239,7 +289,6 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                     className="add-character"
                     type="button"
                     onClick={(e) => {
-                      setIsInScene([...isInScene, false])
                       setTempActors(
                         (prevTempActors) => {
                           const x = [
@@ -256,7 +305,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                               highlighted: false,
                               isDeleted: false,
                               moveRadiusFt: undefined,
-                              initiative: undefined,
+                              initiative: rollDice(20) + 5, // 5 = initiativeModifier 
                               initiativeModifier: 5,
                               initiativeTiebreaker: 4
                             }

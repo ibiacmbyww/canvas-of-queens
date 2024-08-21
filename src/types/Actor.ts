@@ -10,7 +10,7 @@ type Actor = {
   isPlaced: boolean;
   highlighted: boolean;
   isDeleted: boolean;
-  initiative: number | undefined;
+  initiative: number;
   initiativeModifier: number;
   initiativeTiebreaker: number;
 }
