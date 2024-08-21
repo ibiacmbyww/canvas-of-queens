@@ -13,6 +13,7 @@ type Actor = {
   initiative: number;
   initiativeModifier: number;
   initiativeTiebreaker: number;
+  team: number;
 }
 
 export default Actor

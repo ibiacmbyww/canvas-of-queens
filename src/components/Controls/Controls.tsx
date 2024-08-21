@@ -6,6 +6,8 @@ import rollDice from "../../utils/rollDice"
 import { FaBan, FaRegEdit } from "react-icons/fa"
 import { FaExplosion } from "react-icons/fa6"
 import "./Controls.scss";
+import { Team } from '../../types/Team';
+import teams from "../../data/teams"
 
 type ControlProps =   {
   showControls: boolean,
@@ -21,7 +23,8 @@ type ControlProps =   {
   battleModeActive: boolean,
   setBattleModeActive: React.Dispatch<React.SetStateAction<boolean>>,
   setEditCharactersMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
-  setInformation: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>
+  setInfoLayerHover: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>
+  setInfoLayerMode: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>
 }
 
 const Controls = (
@@ -39,7 +42,8 @@ const Controls = (
     battleModeActive,
     setBattleModeActive,
     setEditCharactersMenuOpen,
-    setInformation
+    setInfoLayerHover,
+    setInfoLayerMode
   }: ControlProps
 ) => {
   return (
@@ -88,12 +92,16 @@ const Controls = (
                           }
                         }}
                       >
-                        <span className='blob' style={{background: actor.color}}></span>
+                        <span
+                          className='blob'
+                          style={
+                            {
+                              background: actor.color,
+                              borderColor: (teams[actor.team].color ?? "grey") as string}}
+                          ></span>
                         <span className="name">
-                        p: {placeModeActorIndex?.toString()}
-                        m: {moveModeActorIndex?.toString()}
                           {actor.displayName}</span>
-                        <small>{actor.initiative ?? "n/a"} {actor.initiativeModifier} {actor.initiativeTiebreaker}</small>
+                        <small>{actor.playerName}</small>
                         <div className="actor-buttons">
                           {/***********************************PLACE BUTTON***********************************/}
                           <button
@@ -101,13 +109,27 @@ const Controls = (
                             disabled={(typeof placeModeActorIndex === "number" && placeModeActorIndex !== index) || typeof moveModeActorIndex === "number"}
                             onMouseEnter={()=> {
                               if (typeof placeModeActorIndex !== "number" && typeof moveModeActorIndex !== "number") {
-                                setInformation(<>Place {actor.displayName}</>)
+                                setInfoLayerHover(<>Place {actor.displayName}</>)
+                              } else {
+                                if (placeModeActorIndex === index) {
+                                  setInfoLayerHover(<>End Place mode</>)
+                                }
                               }
                             }}
                             onMouseLeave={()=> {
                               if (placeModeActorIndex !== index) {
                                 if (typeof placeModeActorIndex !== "number" && typeof moveModeActorIndex !== "number") {
-                                  setInformation(undefined)
+                                  setInfoLayerHover(undefined)
+                                }
+                              } else {
+                                if (placeModeActorIndex === index) {
+                                  setInfoLayerHover(<>Placing {actor.displayName}</>)
+                                } else {
+                                  if (moveModeActorIndex === index) {
+                                    setInfoLayerHover(<>Moving {actor.displayName}</>)
+                                  } else {
+                                    setInfoLayerHover(undefined)
+                                  }
                                 }
                               }
                             }}
@@ -115,7 +137,7 @@ const Controls = (
                               e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                               if (placeModeActorIndex !== index) {
                                 //swap focus to this actor
-                                setInformation(<>Placing {actor.displayName}</>)
+                                setInfoLayerMode(<>End Place mode</>)
                                 setPlaceModeActorIndex(index)
                                 setActors(
                                   (prevActors) => {
@@ -133,8 +155,8 @@ const Controls = (
                                 )
                               } else {
                                 //end mode
-                                setMoveModeActorIndex(undefined)
-                                setInformation(<>Place {actor.displayName}</>)
+                                setPlaceModeActorIndex(undefined)
+                                setInfoLayerHover(<>Place {actor.displayName}</>)
                                 setActors(
                                   (prevActors) => {
                                     return prevActors.map(
@@ -156,19 +178,19 @@ const Controls = (
                             disabled={!actor.isPlaced || (typeof moveModeActorIndex === "number" && moveModeActorIndex !== index) || typeof placeModeActorIndex === "number"}
                             onMouseEnter={()=> {
                               if (typeof placeModeActorIndex !== "number" && typeof moveModeActorIndex !== "number") {
-                                setInformation(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
+                                setInfoLayerHover(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
                               } else {
                                 if (moveModeActorIndex === index) {
-                                  setInformation(<>End Move mode</>)
+                                  setInfoLayerMode(<>End Move mode</>)
                                 }
                               }
                             }}
                             onMouseLeave={()=> {
                               if (!placeModeActorIndex && !moveModeActorIndex) {
-                                setInformation(undefined)
+                                setInfoLayerHover(undefined)
                               } else {
                                 if (moveModeActorIndex === index) {
-                                  setInformation(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
+                                  setInfoLayerMode(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
                                 }
                               }
                             }}
@@ -199,7 +221,7 @@ const Controls = (
                               } else {
                                 //end mode
                                 setMoveModeActorIndex(undefined)
-                                setInformation(undefined)
+                                setInfoLayerHover(undefined)
                                 setMoveModeMoveTooFar(false) //resets cursor
                                 setActors(
                                   (prevActors) => {

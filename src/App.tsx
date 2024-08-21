@@ -7,62 +7,12 @@ import EditCharactersModal from './components/EditCharactersModal/EditCharacters
 import rollDice from './utils/rollDice';
 import sortActorsByInitiative from './utils/sortActorsByInitiative';
 import Controls from './components/Controls/Controls';
+import unsortedActors from './data/unsortedActors';
 function App() {
   const radiansCoefficient = 180 / Math.PI
   const [actors, setActors] = useState<Actor[]>(
     () => {
-      return sortActorsByInitiative(
-        [
-          {
-            id: 0,
-            displayName: "Alicia",
-            playerName: "Alice",
-            color: Colors.Purple,
-            moveFt: 25,
-            isPlaced: false,
-            posX: 700,
-            posY: 600,
-            highlighted: false,
-            isDeleted: false,
-            moveRadiusFt: undefined,
-            initiative: rollDice(20) + 7, // 7 = initiativeModifier
-            initiativeModifier: 7,
-            initiativeTiebreaker: 4
-          },
-          {
-            id: 1,
-            displayName: "Lt. Silbok",
-            playerName: "GM",
-            color: Colors.Vermilion,
-            moveFt: 35,
-            isPlaced: true,
-            posX: 1608,
-            posY: 420,
-            highlighted: false,
-            isDeleted: false,
-            moveRadiusFt: undefined,
-            initiative: rollDice(20) + 9, // 9 = initiativeModifier
-            initiativeModifier: 9,
-            initiativeTiebreaker: 4
-          },
-          {
-            id: 2,
-            displayName: "Sgt. Bayez",
-            playerName: "GM",
-            color: Colors.Red,
-            moveFt: 35,
-            isPlaced: true,
-            posX: 1400,
-            posY: 280,
-            highlighted: false,
-            isDeleted: false,
-            moveRadiusFt: undefined,
-            initiative: rollDice(20) + 5,
-            initiativeModifier: 5, // 9 = initiativeModifier
-            initiativeTiebreaker: 3
-          }
-        ]
-      )
+      return sortActorsByInitiative(unsortedActors)
     }
   )
   
@@ -87,7 +37,8 @@ function App() {
   const [placeMoveActive, setPlaceMoveActive] = useState<boolean>(false)
 
   const [battleModeActive, setBattleModeActive] = useState<boolean>(false)
-  const [information, setInformation] = useState<JSX.Element | undefined>(undefined)
+  const [infoLayerHover, setInfoLayerHover] = useState<JSX.Element | undefined>(undefined)
+  const [infoLayerMode, setInfoLayerMode] = useState<JSX.Element | undefined>(undefined)
 
   // const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
 
@@ -400,9 +351,14 @@ function App() {
           }
         )}
       </div>
-      {information && (
+      {infoLayerHover && (
         <div className="information">
-          {information}
+          {infoLayerHover}
+        </div>
+      )}
+      {infoLayerMode && (
+        <div className="information">
+          {infoLayerMode}
         </div>
       )}
       <Controls
@@ -419,7 +375,8 @@ function App() {
         battleModeActive={battleModeActive}
         setBattleModeActive={setBattleModeActive}
         setEditCharactersMenuOpen={setEditCharactersMenuOpen}
-        setInformation={setInformation} />
+        setInfoLayerHover={setInfoLayerHover}
+        setInfoLayerMode={setInfoLayerMode} />
     </div>
   );
 }

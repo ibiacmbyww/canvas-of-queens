@@ -307,7 +307,8 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                               moveRadiusFt: undefined,
                               initiative: rollDice(20) + 5, // 5 = initiativeModifier 
                               initiativeModifier: 5,
-                              initiativeTiebreaker: 4
+                              initiativeTiebreaker: 4,
+                              team: 0
                             }
                           ]
                           return x
