@@ -1,15 +1,12 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import bg1 from "./img/bg1.png";
 import './App.scss';
 import Actor from './types/Actor';
 import Colors from './types/Colors';
 import EditCharactersModal from './components/EditCharactersModal/EditCharactersModal';
-import { FaBan, FaExplosion } from "react-icons/fa6";
-import { FaRegEdit } from "react-icons/fa";
-import { MdPinDrop } from "react-icons/md";
-import { IoMdMove } from "react-icons/io";
 import rollDice from './utils/rollDice';
 import sortActorsByInitiative from './utils/sortActorsByInitiative';
+import Controls from './components/Controls/Controls';
 function App() {
   const radiansCoefficient = 180 / Math.PI
   const [actors, setActors] = useState<Actor[]>(
@@ -90,6 +87,7 @@ function App() {
   const [placeMoveActive, setPlaceMoveActive] = useState<boolean>(false)
 
   const [battleModeActive, setBattleModeActive] = useState<boolean>(false)
+  const [information, setInformation] = useState<JSX.Element | undefined>(undefined)
 
   // const [customMessage, setCustomMessage] = useState<JSX.Element>(<></>)
 
@@ -254,7 +252,7 @@ function App() {
         window.removeEventListener("click", moveModeOnClickHandler)
       }
     },
-    [actors, moveModeActorIndex, moveModeMoveTooFar, oneFtInPx, radiansCoefficient, zoomLevel]
+    [actors, moveModeActorIndex, moveModeMoveTooFar, oneFtInPx, radiansCoefficient, zoomLevel, placeMoveActive]
   )
 
   useEffect(
@@ -331,7 +329,7 @@ function App() {
                 }
               }
             >
-              {typeof moveModeActorIndex === "number" && 
+              {(typeof moveModeActorIndex === "number" || (typeof moveModeActorIndex === "number" && actors[moveModeActorIndex].isPlaced)) && 
                 <span>
                   {
                     parseFloat(
@@ -360,7 +358,7 @@ function App() {
           (actor, index) => {
             return actor.isPlaced
               ? <div
-                  className="actor-wrapper"
+                  className="actor"
                   style={
                     {
                       left: `${(actor.posX - (2.5 * oneFtInPx)) * zoomLevel}px`,
@@ -390,7 +388,7 @@ function App() {
                     <small>{actor.playerName}</small>
                   </div>
                   <div
-                    className={`actor${actor.highlighted || (index === moveModeActorIndex && placeMoveActive) ? " highlighted" : ""}`}
+                    className={`actor-dot${actor.highlighted || (index === moveModeActorIndex && placeMoveActive) ? " highlighted" : ""}`}
                     style={
                       {
                         background: actor.color
@@ -402,201 +400,26 @@ function App() {
           }
         )}
       </div>
-      <div className="controls" style={{display: showControls ? "block" : "none"}}>
-        {/* {customMessage} */}
-        <h3>Map Zoom: {zoomLevel.toFixed(2)}</h3>
-        <div className="actors-list-section">
-          <h1>Characters</h1>
-          <ul>
-            {actors.length
-              ? actors.map(
-                  (actor, index) => {
-                    return (
-                      <li
-                        className={`${actor.isPlaced ? "" : "not-placed"}`}
-                        key={actor.id}
-                        onMouseEnter={()=> {
-                          if (actor.isPlaced) {
-                            setActors((prevActors) => {
-                              return prevActors.map((prevActor) => {
-                                if (prevActor.id === actor.id) {
-                                  return {
-                                    ...prevActor,
-                                    highlighted: true
-                                  }
-                                }
-                                return prevActor;
-                              });
-                            })
-                          }
-                        }}
-                        onMouseLeave={()=> {
-                          if (actor.isPlaced) {
-                            setActors((prevActors) => {
-                              return prevActors.map((prevActor) => {
-                                if (prevActor.id === actor.id) {
-                                  return {
-                                    ...prevActor,
-                                    highlighted: false
-                                  }
-                                }
-                                return prevActor;
-                              });
-                            })
-                          }
-                        }}
-                      >
-                        <span className='blob' style={{background: actor.color}}></span>
-                        <span className="name">{actor.displayName}</span>
-                        <small>{actor.initiative ?? "n/a"} {actor.initiativeModifier} {actor.initiativeTiebreaker}</small>
-                        <div className="actor-buttons">
-                          <button className={`place${typeof placeModeActorIndex === "number" && placeModeActorIndex === index ? "active" : ""}`} onClick={(e) => {
-                            e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
-                            if (!actor.isPlaced) {
-                              setActors(
-                                (prevActors) => {
-                                  return prevActors.map(
-                                    (prevActor, i) => {
-                                      return {
-                                        ...prevActor,
-                                        moveRadiusFt: undefined
-                                      }
-                                    }
-                                  )
-                                }
-                              )
-                              setMoveModeActorIndex(undefined)
-                              setMoveModeMoveTooFar(false) //resets cursor
-                              if (typeof placeModeActorIndex !== "number") {
-                                setPlaceModeActorIndex(index)
-                              } else {
-                                setMoveModeActorIndex(undefined)
-                              }
-                            } else {
-                              setPlaceMoveActive(true)
-                              if (typeof moveModeActorIndex !== "number") {
-                                setActors(
-                                  (prevActors) => {
-                                    return prevActors.map(
-                                      (prevActor, i) => {
-                                        return i === index
-                                          ? {
-                                            ...prevActor,
-                                            moveRadiusFt: prevActor.moveFt
-                                          }
-                                          : {
-                                            ...prevActor,
-                                            moveRadiusFt: undefined
-                                          }
-                                      }
-                                    )
-                                  }
-                                )
-                                setMoveModeActorIndex(index)
-                              } else {
-                                setActors(
-                                  (prevActors) => {
-                                    return prevActors.map(
-                                      (prevActor) => {
-                                        return {
-                                          ...prevActor,
-                                          moveRadiusFt: typeof prevActor.moveRadiusFt === "number" ? undefined : prevActor.moveRadiusFt
-                                        }
-                                      }
-                                    )
-                                  }
-                                )
-                                setMoveModeActorIndex(undefined)
-                                setMoveModeMoveTooFar(false) //resets cursor
-                              }
-                            }
-                          }}><MdPinDrop /></button>
-                          <button disabled={!actor.isPlaced} onClick={(e) => {
-                            e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
-                            setPlaceMoveActive(false)
-                            if (typeof moveModeActorIndex !== "number") {
-                              setActors(
-                                (prevActors) => {
-                                  return prevActors.map(
-                                    (prevActor, i) => {
-                                      return i === index
-                                        ? {
-                                          ...prevActor,
-                                          moveRadiusFt: prevActor.moveFt
-                                        }
-                                        : {
-                                          ...prevActor,
-                                          moveRadiusFt: undefined
-                                        }
-                                    }
-                                  )
-                                }
-                              )
-                              setMoveModeActorIndex(index)
-                            } else {
-                              setActors(
-                                (prevActors) => {
-                                  return prevActors.map(
-                                    (prevActor) => {
-                                      return {
-                                        ...prevActor,
-                                        moveRadiusFt: typeof prevActor.moveRadiusFt === "number" ? undefined : prevActor.moveRadiusFt
-                                      }
-                                    }
-                                  )
-                                }
-                              )
-                              setMoveModeActorIndex(undefined)
-                              setMoveModeMoveTooFar(false) //resets cursor
-                            }
-                          }}><IoMdMove /></button>
-                          {/* <button disabled={!actor.isPlaced}>🗡️</button> */}
-                        </div>
-                      </li>
-                    )
-                  }
-                )
-              : <li className="empty">None</li>
-            }
-          </ul>
-          <button
-            disabled={typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
-            onClick={() => {
-              setEditCharactersMenuOpen(true)
-            }}
-          >
-            <FaRegEdit /> Edit Characters
-          </button>
-          <button
-            disabled={typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
-            onClick={() => {
-              setBattleModeActive(!battleModeActive)
-              if (battleModeActive) {
-              } else {
-                setActors(
-                  (prevActors) => {
-                    return sortActorsByInitiative(
-                      prevActors.map(
-                        (prevActor) => {
-                          return {
-                            ...prevActor,
-                            initiative: rollDice(20) + prevActor.initiativeModifier
-                          }
-                        }
-                      )
-                    )
-                  }
-                )
-              }
-            }}
-          >
-            {battleModeActive
-              ? <><FaBan /> End Combat</>
-              : <><FaExplosion /> Start Combat</>
-            }
-          </button>
+      {information && (
+        <div className="information">
+          {information}
         </div>
-      </div>
+      )}
+      <Controls
+        showControls={showControls}
+        zoomLevel={zoomLevel}
+        actors={actors}
+        setActors={setActors}
+        placeModeActorIndex={placeModeActorIndex}
+        setPlaceModeActorIndex={setPlaceModeActorIndex}
+        setPlaceMoveActive={setPlaceMoveActive}
+        moveModeActorIndex={moveModeActorIndex}
+        setMoveModeActorIndex={setMoveModeActorIndex}
+        setMoveModeMoveTooFar={setMoveModeMoveTooFar}
+        battleModeActive={battleModeActive}
+        setBattleModeActive={setBattleModeActive}
+        setEditCharactersMenuOpen={setEditCharactersMenuOpen}
+        setInformation={setInformation} />
     </div>
   );
 }

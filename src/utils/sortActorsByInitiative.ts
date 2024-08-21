@@ -32,11 +32,12 @@ const sortActorsByInitiative = (actors: Actor[]): Actor[] => {
               return 1
             } else {
               let resolved = false
-              let ret
               let aDice = rollDice(20)
               let bDice = rollDice(20)
               while (!resolved) {
                 resolved = aDice !== bDice
+                aDice = rollDice(20)
+                bDice = rollDice(20)
               }
               return bDice - aDice
             }

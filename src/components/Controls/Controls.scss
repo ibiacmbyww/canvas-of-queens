@@ -1,0 +1,92 @@
+.Controls {
+  $bg: #F2EFDC;
+  $bg-dark: darken($color: #F2EFDC, $amount: 50);
+  $bg-light: #ffdd99;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20vw;
+  height: 100vh;
+  background: $bg;
+  padding: 0 1rem;
+  border-right: 0.25rem solid $bg-dark;
+  overflow: scroll;
+  z-index: 30;
+
+  .actors-list-section {
+    & > button {
+      margin-bottom: 1rem;
+    }
+  
+    ul {
+      padding-left: 0;
+      border-top: 2px solid $bg-dark;
+      li {
+        list-style-type: none;
+        display: grid;
+        grid-template-columns: calc(1rem + 8px) max-content 1fr;
+        grid-template-rows: min-content min-content;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 2px solid $bg-dark;
+        padding: .5rem 0 .5rem .5rem;
+
+        &:hover:not(.not-placed) {
+          background: $bg-light;
+        }
+
+        &.empty {
+          font-style: italic;
+          gap: 0;
+        }
+
+        &.not-placed > *:not(.actor-buttons) {
+          opacity: 0.5;
+        }
+
+        &.not-placed > .actor-buttons > .place button:not(:disabled) {
+          opacity: 1 !important;
+          border: 1px solid black;
+        }
+
+        .blob {
+          display: block;
+          height: 100%;
+          aspect-ratio: 1/1;
+          border-radius: 1rem;
+          border: 2px solid black;
+        }
+
+        .name {
+          font-size: 1.5rem;
+          font-weight: 800;
+          font-variant: small-caps;
+          letter-spacing: 1px;
+        }
+
+        small {
+          // these 4 styles make the player name the same height as the character name without also making it float a few px off because the font is smaller. Height is keyed to font-size of .name
+          display: flex;
+          align-items: flex-end;
+          height: 1.5rem;
+          padding-bottom: 2px; //barf
+        }
+
+        .actor-buttons {
+          grid-column-start: 2;
+          display: flex;
+          flex-direction: row;
+          button {
+            font-size: 1rem;
+            padding: 0.25rem;
+            aspect-ratio: 1/1;
+
+            &:disabled {
+              opacity: 0.5;
+            }
+          }
+        }
+      }
+    }
+  }
+}
