@@ -2,12 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import bg1 from "./img/bg1.png";
 import './App.scss';
 import Actor from './types/Actor';
-import Colors from './types/Colors';
 import EditCharactersModal from './components/EditCharactersModal/EditCharactersModal';
-import rollDice from './utils/rollDice';
 import sortActorsByInitiative from './utils/sortActorsByInitiative';
 import Controls from './components/Controls/Controls';
 import unsortedActors from './data/unsortedActors';
+import teams from './data/teams';
 function App() {
   const radiansCoefficient = 180 / Math.PI
   const [actors, setActors] = useState<Actor[]>(
@@ -342,7 +341,8 @@ function App() {
                     className={`actor-dot${actor.highlighted || (index === moveModeActorIndex && placeMoveActive) ? " highlighted" : ""}`}
                     style={
                       {
-                        background: actor.color
+                        background: actor.color,
+                        borderColor: teams[actor.team].color
                       }
                     }
                   ></div>

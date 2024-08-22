@@ -4,7 +4,7 @@ import {Team, TeamNames} from "../types/Team";
 const teams: Team[] = [
   {
     name: TeamNames.TheParty,
-    color: Colors.Green
+    color: Colors.Magenta
   },
   {
     name: TeamNames.NodianSoldiers,

@@ -2,11 +2,9 @@ import { MdPinDrop } from "react-icons/md"
 import Actor from "../../types/Actor"
 import { IoMdMove } from "react-icons/io"
 import sortActorsByInitiative from "../../utils/sortActorsByInitiative"
-import rollDice from "../../utils/rollDice"
 import { FaBan, FaRegEdit } from "react-icons/fa"
 import { FaExplosion } from "react-icons/fa6"
 import "./Controls.scss";
-import { Team } from '../../types/Team';
 import teams from "../../data/teams"
 
 type ControlProps =   {

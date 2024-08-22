@@ -5,6 +5,8 @@ import Colors from '../../types/Colors';
 import { FaCheck, FaDice, FaX } from 'react-icons/fa6';
 import sortActorsByInitiative from '../../utils/sortActorsByInitiative';
 import rollDice from '../../utils/rollDice';
+import teams from '../../data/teams';
+import { TeamNames } from '../../types/Team';
 
 type Props = {
     // Define your prop types here
@@ -67,6 +69,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                       const newIndex = keyChunks.splice(keyChunks.length - 1)[0]
                       let newKey = keyChunks.join("-")
                       index = parseInt(newIndex)
+                      debugger;
                       switch (newKey) {
                         //@ts-ignore-next-line
                         case "actor-id": newKey = "id"; v = parseInt(v); break;
@@ -99,6 +102,8 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         case "actor-ini-mod": newKey = "initiativeModifier"; v = parseInt(v); break;
                         //@ts-ignore-next-line
                         case "actor-ini-tie": newKey = "initiativeTiebreaker"; v = parseInt(v); break;
+                        //@ts-ignore-next-line
+                        case "actor-team": v = Object.keys(TeamNames)[parseInt(v)]; break;
                       // const num: number = parseInt(keyChunks.at(-1)?? "0")
                       }
                       outerSan[index] = {
@@ -140,7 +145,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         (tempActor, index) => {
                           return (
                             <li key={tempActor.id} className={`${tempActor.isDeleted ? "is-deleted" : ""}`}>
-                              <span className='blob' style={{background: tempActor.color}}></span>
+                              <span className='blob' style={{background: tempActor.color, borderColor: teams[tempActor.team].color}}></span>
                               <div className="attributes-list">
                                 <input type="hidden" value={tempActor.id} name={`actor-id-${index}`} />
                                 <input type="hidden" value={"" + tempActor.isDeleted} name={`actor-deleted-${index}`} />
@@ -199,6 +204,32 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                 <input name={`actor-posy-${index}`} id={`actor-posy-${index}`} type="number" disabled={!tempActor.isPlaced} defaultValue={tempActor.posY} min="0" max={map.current?.naturalHeight ?? 0 - 100} />
                               </div>
                               <div className="attributes-list">
+                                <label htmlFor={`team-${index}`}>
+                                  Team:
+                                </label>
+                                <select id={`team-${index}`} name={`team-${index}`} value={tempActor.team} onChange={(e) => {
+                                  setTempActors(
+                                    (prevTempActors) => {
+                                      return prevTempActors.map(
+                                        (prevTempActor, i) => {
+                                          return {
+                                            ...prevTempActor,
+                                            team: i === index
+                                              ? parseInt(e.target.value)
+                                              : prevTempActor.team
+                                          }
+                                        }
+                                      )
+                                    }
+                                  )
+                                }}>
+                                  {Object.values(TeamNames).map(
+                                    (teamNameValue, i2) => {
+                                      debugger;
+                                      return <option key={`team-option-${index}-${i2}`} value={i2}>{teamNameValue}</option>
+                                    }
+                                  )}
+                                </select>
                                 <label htmlFor={`actor-ini-${index}`}>
                                   Initiative:
                                 </label>
