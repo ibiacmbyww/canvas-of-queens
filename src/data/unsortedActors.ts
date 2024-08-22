@@ -57,7 +57,7 @@ const unsortedActors = [
     initiativeTiebreaker: 3,
     team: 1,
     hp: 40,
-    currentHP: 43,
+    currentHP: 40,
   }
 ]
 export default unsortedActors

@@ -7,6 +7,7 @@ import { FaArrowRight, FaExplosion } from "react-icons/fa6"
 import "./Controls.scss";
 import teams from "../../data/teams"
 import { useMemo } from "react"
+import HPReadout from "../HPReadout/HPReadout"
 
 type ControlProps =   {
   showControls: boolean,
@@ -264,6 +265,12 @@ const Controls = (
                               setBattleModeActive(!battleModeActive)
                             }}
                             >🗡️</button> */}
+                            
+                            <HPReadout
+                              hp={actor.hp}
+                              currentHP={actor.currentHP}
+                              setActors={setActors}
+                              index={index} />
                         </div>
                       </li>
                     )

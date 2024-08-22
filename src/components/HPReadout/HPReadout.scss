@@ -1,0 +1,49 @@
+.HPReadout {
+  $bg: #F2EFDC;
+  $bg-dark: darken($color: #F2EFDC, $amount: 50);
+  $bg-light: #ffdd99;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 0.5rem;
+  height: 26px;
+  min-height: 26px;
+  position: relative;
+  & > span {
+    display: block;
+    height: 26px;
+    min-height: 26px;
+    // width: 100%;
+    // position: absolute;
+    // top: 0;
+    // left: 0;
+    // text-align: center;
+    // color: white;
+    // font-weight: 900;
+  }
+  & > div {
+    width: 4rem;
+    height: 26px;
+    min-height: 26px;
+    margin-right: 0.5rem;
+    background-color: #333;
+
+    & > div {
+      height: 26px;
+      max-width: 100%;
+
+      &.green {
+        background-color: #07E034;
+      }
+
+      &.yellow {
+        background-color: #E0AC07;
+      }
+
+      &.red {
+        background-color: #E0001F;
+      }
+    }
+
+  }
+}
