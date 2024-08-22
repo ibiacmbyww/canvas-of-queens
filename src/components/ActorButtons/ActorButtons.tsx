@@ -190,7 +190,8 @@ const ActorButtons = (
           hp={actor.hp}
           currentHP={actor.currentHP}
           setActors={setActors}
-          index={index} />
+          index={index}
+          isPlaced={actor.isPlaced} />
     </div>
   )
 }

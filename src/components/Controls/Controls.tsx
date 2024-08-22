@@ -59,6 +59,39 @@ const Controls = (
     [actors]
   )
 
+  const findFirstActorInScene = (upperListStartsAtIndex: number) => {
+    if (typeof battleModeTurnIndex === "number" && battleModeTurnIndex < actors.length) {
+      const lowerLoop = actors.slice(0, upperListStartsAtIndex)
+      const upperLoop = actors.slice(upperListStartsAtIndex)
+      const nextPlacedActorIndex = upperLoop.findIndex(
+        (actor, i) => {
+          return i >= battleModeTurnIndex && actor.isPlaced
+        }
+      )
+      if (nextPlacedActorIndex !== -1) {
+        setBattleModeTurnIndex(upperListStartsAtIndex + nextPlacedActorIndex)
+      } else {
+        //loop round and check sub-section
+        const nextPlacedActorIndex = lowerLoop.findIndex(
+          (actor, i) => {
+            return i <= battleModeTurnIndex && actor.isPlaced
+          }
+        )
+        if (nextPlacedActorIndex !== -1) {
+          setBattleModeTurnIndex(nextPlacedActorIndex)
+        } else {
+          //combat has ended
+          setBattleModeTurnIndex(0)
+          setBattleModeActive(false)
+        }
+      }
+
+    } else {
+      //loop
+      setBattleModeTurnIndex(0)
+    }
+  }
+
   return (
     <div className="Controls" style={{display: showControls ? "block" : "none"}}>
       <div className="wrapper">
@@ -196,30 +229,9 @@ const Controls = (
           <div>
             <button
               onClick={() => {
-                if (typeof battleModeTurnIndex === "number" && battleModeTurnIndex < actors.length) {
-                  const nextPlacedActorIndex = actors.findIndex(
-                    (actor, i) => {
-                      return i > battleModeTurnIndex && actor.isPlaced
-                    }
-                  )
-                  if (nextPlacedActorIndex !== -1) {
-                    setBattleModeTurnIndex(nextPlacedActorIndex)
-                  } else {
-                    const nextPlacedActorIndex = actors.findIndex(
-                      (actor, i) => {
-                        return i <= battleModeTurnIndex && actor.isPlaced
-                      }
-                    )
-                    if (nextPlacedActorIndex !== -1) {
-                      setBattleModeTurnIndex(nextPlacedActorIndex)
-                    } else {
-                      setBattleModeTurnIndex(0)
-                      setBattleModeActive(false)
-                    }
-                  }
-
-                } else {
-                  setBattleModeTurnIndex(0)
+                debugger
+                if (typeof battleModeTurnIndex === "number") {
+                  findFirstActorInScene(battleModeTurnIndex + 1)
                 }
               }}
             ><FaArrowRight /> End Turn</button>

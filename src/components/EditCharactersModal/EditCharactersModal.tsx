@@ -103,6 +103,10 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         case "actor-ini-tie": newKey = "initiativeTiebreaker"; v = parseInt(v); break;
                         //@ts-ignore-next-line
                         case "actor-team": v = Object.keys(TeamNames)[parseInt(v)]; break;
+                        //@ts-ignore-next-line
+                        case "actor-current-hp": newKey = "currentHP"; v = parseInt(v); break;
+                        //@ts-ignore-next-line
+                        case "actor-hp": newKey = "hp"; debugger;v = parseInt(v); break;
                       // const num: number = parseInt(keyChunks.at(-1)?? "0")
                       }
                       outerSan[index] = {
@@ -159,50 +163,6 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                 </label>
                                 <input name={`actor-player-name-${index}`} id={`actor-player-name-${index}`} type="text" defaultValue={tempActor.playerName} />
 
-                                <label htmlFor={`actor-color-${index}`}>
-                                  Color:
-                                </label>
-                                <select name={`actor-color-${index}`} id={`actor-color-${index}`}>
-
-                                  {Object.values(Colors).map((v) => {
-                                    return <option selected={tempActor.color === v}>{v}</option>
-                                  })}
-                                </select>
-                                <label htmlFor={`actor-movement-${index}`}>
-                                  Movement (ft):
-                                </label>
-                                <input name={`actor-movement-${index}`} id={`actor-movement-${index}`} type="number" min="0" max="1000" step="2.5" defaultValue={tempActor.moveFt} />
-                              </div>
-                              <div className="attributes-list">
-                                <label htmlFor={`actor-placed-${index}`}>
-                                  Character is in scene:
-                                </label>
-                                <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={tempActor.isPlaced} onChange={(e) => {
-                                  setTempActors(
-                                    (prevActors) => {
-                                      return prevActors.map(
-                                        (v, i) => {
-                                          return index === i
-                                            ? {
-                                                ...v,
-                                                isPlaced: e.target.checked
-                                              }
-                                            : v
-                                        }
-                                      )
-                                    }
-                                  )
-                                }} />
-                                <label htmlFor={`actor-posx-${index}`}>
-                                  X position:
-                                </label>
-                                <input name={`actor-posx-${index}`} id={`actor-posx-${index}`} type="number" disabled={!tempActor.isPlaced} defaultValue={tempActor.posX} min="0" max={map.current?.naturalWidth ?? 0 - 100} />
-                                <label htmlFor={`actor-posy-${index}`}>
-                                  Y position:
-                                </label>
-                                <input name={`actor-posy-${index}`} id={`actor-posy-${index}`} type="number" disabled={!tempActor.isPlaced} defaultValue={tempActor.posY} min="0" max={map.current?.naturalHeight ?? 0 - 100} />
-                              </div>
-                              <div className="attributes-list">
                                 <label htmlFor={`team-${index}`}>
                                   Team:
                                 </label>
@@ -228,6 +188,58 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                     }
                                   )}
                                 </select>
+                                <label htmlFor={`actor-color-${index}`}>
+                                  Color:
+                                </label>
+                                <select name={`actor-color-${index}`} id={`actor-color-${index}`}>
+
+                                  {Object.values(Colors).map((v) => {
+                                    return <option selected={tempActor.color === v}>{v}</option>
+                                  })}
+                                </select>
+                                <label htmlFor={`actor-movement-${index}`}>
+                                  Movement (ft):
+                                </label>
+                                <input name={`actor-movement-${index}`} id={`actor-movement-${index}`} type="number" min="0" max="1000" step="2.5" defaultValue={tempActor.moveFt} />
+                              </div>
+                              <div className="attributes-list">
+                                <label htmlFor={`actor-placed-${index}`}>
+                                  Is in scene:
+                                </label>
+                                <input name={`actor-placed-${index}`} id={`actor-placed-${index}`} type="checkbox" defaultChecked={tempActor.isPlaced} onChange={(e) => {
+                                  setTempActors(
+                                    (prevActors) => {
+                                      return prevActors.map(
+                                        (v, i) => {
+                                          return index === i
+                                            ? {
+                                                ...v,
+                                                isPlaced: e.target.checked
+                                              }
+                                            : v
+                                        }
+                                      )
+                                    }
+                                  )
+                                }} />
+                                <label htmlFor={`actor-posx-${index}`}>
+                                  X position:
+                                </label>
+                                <input name={`actor-posx-${index}`} id={`actor-posx-${index}`} type="number" disabled={!tempActor.isPlaced} defaultValue={tempActor.posX} min="0" max={map.current?.naturalWidth ?? 0 - 100} />
+                                <label htmlFor={`actor-posy-${index}`}>
+                                  Y position:
+                                </label>
+                                <input name={`actor-posy-${index}`} id={`actor-posy-${index}`} type="number" disabled={!tempActor.isPlaced} defaultValue={tempActor.posY} min="0" max={map.current?.naturalHeight ?? 0 - 100} />
+                                <label htmlFor={`actor-current-hp-${index}`}>
+                                  Current HP:
+                                </label>
+                                <input name={`actor-current-hp-${index}`} id={`actor-current-hp-${index}`} type="number" defaultValue={tempActor.currentHP} min="-1" max={999} />
+                                <label htmlFor={`actor-hp-${index}`}>
+                                  Base max. HP:
+                                </label>
+                                <input name={`actor-hp-${index}`} id={`actor-hp-${index}`} type="number" defaultValue={tempActor.hp} min="-1" max={999} />
+                              </div>
+                              <div className="attributes-list">
                                 <label htmlFor={`actor-ini-${index}`}>
                                   Initiative:
                                 </label>
@@ -320,7 +332,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                     onClick={(e) => {
                       setTempActors(
                         (prevTempActors) => {
-                          const hp = rollDice(12)
+                          const hp = (rollDice(5) + 2) * rollDice(12)
                           const x = [
                             ...prevTempActors,
                             {

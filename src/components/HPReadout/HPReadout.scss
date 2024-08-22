@@ -9,20 +9,33 @@
   height: 26px;
   min-height: 26px;
   position: relative;
-  & > span {
+  & > label {
     display: block;
     height: 26px;
     min-height: 26px;
-    // width: 100%;
-    // position: absolute;
-    // top: 0;
-    // left: 0;
-    // text-align: center;
-    // color: white;
-    // font-weight: 900;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0.5rem; //matches padding of parent
+    text-align: center;
+    color: white;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+
+    input {
+      background: transparent;
+      border: none;
+      text-align: right;
+      width: 4rem;
+      height: 26px;
+      color: white;
+      font-size: 1.25rem;
+    }
   }
   & > div {
-    width: 4rem;
+    width: 6rem;
     height: 26px;
     min-height: 26px;
     margin-right: 0.5rem;

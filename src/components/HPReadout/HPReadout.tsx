@@ -6,10 +6,11 @@ type HPReadoutProps = {
   hp: number,
   currentHP: number,
   setActors: React.Dispatch<React.SetStateAction<Actor[]>>,
-  index: number
+  index: number,
+  isPlaced: boolean
 }
 
-const HPReadout: React.FC<HPReadoutProps> = ({hp, currentHP, setActors, index}) => {
+const HPReadout: React.FC<HPReadoutProps> = ({hp, currentHP, setActors, index, isPlaced}) => {
   const cls = useMemo(
     () => {
       const pc = Math.round(100 * (currentHP / hp))
@@ -35,7 +36,8 @@ const HPReadout: React.FC<HPReadoutProps> = ({hp, currentHP, setActors, index}) 
           type="number"
           min="-1"
           max="999"
-          defaultValue={hp}
+          disabled={!isPlaced}
+          value={currentHP}
           onChange={
             (e)=>{
               setActors(
@@ -45,7 +47,7 @@ const HPReadout: React.FC<HPReadoutProps> = ({hp, currentHP, setActors, index}) 
                       return i === index
                       ? {
                           ...prevActor,
-                          currentHP: parseInt(e.currentTarget.value)
+                          currentHP: parseInt(e.target.value)
                         }
                       : prevActor
                     }
