@@ -69,7 +69,6 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                       const newIndex = keyChunks.splice(keyChunks.length - 1)[0]
                       let newKey = keyChunks.join("-")
                       index = parseInt(newIndex)
-                      debugger;
                       switch (newKey) {
                         //@ts-ignore-next-line
                         case "actor-id": newKey = "id"; v = parseInt(v); break;
@@ -225,7 +224,6 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                 }}>
                                   {Object.values(TeamNames).map(
                                     (teamNameValue, i2) => {
-                                      debugger;
                                       return <option key={`team-option-${index}-${i2}`} value={i2}>{teamNameValue}</option>
                                     }
                                   )}

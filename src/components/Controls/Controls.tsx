@@ -195,7 +195,6 @@ const Controls = (
                             onClick={(e) => {
                               e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
                               setPlaceMoveActive(false)
-                              debugger;
                               if (moveModeActorIndex !== index) {
                                 setMoveModeActorIndex(index)
                                 //swap focus
