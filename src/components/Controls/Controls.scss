@@ -24,12 +24,12 @@
       li {
         list-style-type: none;
         display: grid;
-        grid-template-columns: calc(1rem + 8px) max-content 1fr;
+        grid-template-columns: 1.75rem max-content 1fr;
         grid-template-rows: min-content min-content;
         align-items: center;
         gap: 0.5rem;
         border-bottom: 2px solid $bg-dark;
-        padding: .5rem 0 .5rem 0.25rem;
+        padding: .75rem 0 .5rem 0.25rem;
         border-left: 0.25rem solid $bg;
         &.is-current-turn {
           // background-color: red !important;
@@ -61,6 +61,7 @@
 
         &:hover:not(.not-placed) {
           background: $bg-light;
+          border-left: 0.25rem solid $bg-light;
         }
 
         &.empty {
@@ -79,7 +80,7 @@
 
         .blob {
           display: block;
-          height: 100%;
+          height: 1.75rem;
           aspect-ratio: 1/1;
           border-radius: 1rem;
           border-width: 2px;
@@ -110,6 +111,9 @@
             font-size: 1rem;
             padding: 0.25rem;
             aspect-ratio: 1/1;
+            svg {
+              top: 0;
+            }
 
             &:disabled {
               opacity: 0.5;
