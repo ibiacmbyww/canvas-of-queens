@@ -102,26 +102,6 @@
           height: 1.5rem;
           padding-bottom: 2px; //barf
         }
-
-        .actor-buttons {
-          grid-column-start: 2;
-          grid-column-end: 4;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          button {
-            font-size: 1rem;
-            padding: 0.25rem;
-            aspect-ratio: 1/1;
-            svg {
-              top: 0;
-            }
-
-            &:disabled {
-              opacity: 0.5;
-            }
-          }
-        }
       }
     }
   }
