@@ -29,7 +29,35 @@
         align-items: center;
         gap: 0.5rem;
         border-bottom: 2px solid $bg-dark;
-        padding: .5rem 0 .5rem .5rem;
+        padding: .5rem 0 .5rem 0.25rem;
+        border-left: 0.25rem solid $bg;
+        &.is-current-turn {
+          // background-color: red !important;
+          border-left: 0.25rem $bg-dark solid;
+        }
+
+        &.init-breaker {
+          position: relative;
+          height: 0;
+          max-height: 0;
+          padding: 0;
+          border-bottom: none;
+          & > span {
+            position: absolute;
+            top: calc(50% - 0.35rem);
+            left: 0;
+            transform: translate(-50%, -50%);
+            background-color: $bg;
+            height: 1.5rem;
+            min-height: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.5rem;
+            z-index: 33;
+            padding-left: 0.75rem;
+            padding-right: 0.25rem;
+          }
+        }
 
         &:hover:not(.not-placed) {
           background: $bg-light;

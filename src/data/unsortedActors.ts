@@ -17,7 +17,9 @@ const unsortedActors = [
     initiative: rollDice(20) + 7, // 7 = initiativeModifier
     initiativeModifier: 7,
     initiativeTiebreaker: 4,
-    team: 0
+    team: 0,
+    hp: 40,
+    currentHP: 40,
   },
   {
     id: 1,
@@ -34,7 +36,9 @@ const unsortedActors = [
     initiative: rollDice(20) + 9, // 9 = initiativeModifier
     initiativeModifier: 9,
     initiativeTiebreaker: 4,
-    team: 1
+    team: 1,
+    hp: 47,
+    currentHP: 47,
   },
   {
     id: 2,
@@ -51,7 +55,9 @@ const unsortedActors = [
     initiative: rollDice(20) + 5,
     initiativeModifier: 5, // 9 = initiativeModifier
     initiativeTiebreaker: 3,
-    team: 1
+    team: 1,
+    hp: 40,
+    currentHP: 43,
   }
 ]
 export default unsortedActors

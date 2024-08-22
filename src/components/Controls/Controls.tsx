@@ -3,9 +3,10 @@ import Actor from "../../types/Actor"
 import { IoMdMove } from "react-icons/io"
 import sortActorsByInitiative from "../../utils/sortActorsByInitiative"
 import { FaBan, FaRegEdit } from "react-icons/fa"
-import { FaExplosion } from "react-icons/fa6"
+import { FaArrowRight, FaExplosion } from "react-icons/fa6"
 import "./Controls.scss";
 import teams from "../../data/teams"
+import { useMemo } from "react"
 
 type ControlProps =   {
   showControls: boolean,
@@ -23,6 +24,8 @@ type ControlProps =   {
   setEditCharactersMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
   setInfoLayerHover: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>
   setInfoLayerMode: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>
+  battleModeTurnIndex: number | undefined,
+  setBattleModeTurnIndex: React.Dispatch<React.SetStateAction<number | undefined>>
 }
 
 const Controls = (
@@ -41,23 +44,37 @@ const Controls = (
     setBattleModeActive,
     setEditCharactersMenuOpen,
     setInfoLayerHover,
-    setInfoLayerMode
+    setInfoLayerMode,
+    battleModeTurnIndex,
+    setBattleModeTurnIndex
   }: ControlProps
 ) => {
+  const hasPlaced = useMemo(
+    () => {
+      return actors.findIndex(
+        (actor) => {
+          return actor.isPlaced
+        }
+      ) !== -1
+    },
+    [actors]
+  )
+
   return (
     <div className="Controls" style={{display: showControls ? "block" : "none"}}>
       <div className="wrapper">
         {/* {customMessage} */}
         <h3>Map Zoom: {zoomLevel.toFixed(2)}</h3>
         <div className="actors-list-section">
-          <h1>Characters</h1>
+          {/* <h1>Characters</h1> */}
           <ul>
             {actors.length
               ? actors.map(
-                  (actor, index) => {
-                    return (
+                  (actor, index, arr) => {
+                    debugger;
+                    const li = (
                       <li
-                        className={`${actor.isPlaced ? "" : "not-placed"}`}
+                        className={`${actor.isPlaced ? "" : "not-placed"} ${battleModeActive && typeof battleModeTurnIndex === "number" && battleModeTurnIndex === index ? "is-current-turn" : ""}`}
                         key={actor.id}
                         onMouseEnter={()=> {
                           if (actor.isPlaced) {
@@ -98,7 +115,8 @@ const Controls = (
                               borderColor: (teams[actor.team].color ?? "grey") as string}}
                           ></span>
                         <span className="name">
-                          {actor.displayName}</span>
+                          {actor.displayName}
+                        </span>
                         <small>{actor.playerName}</small>
                         <div className="actor-buttons">
                           {/***********************************PLACE BUTTON***********************************/}
@@ -173,7 +191,10 @@ const Controls = (
                           
                           {/***********************************MOVE BUTTON***********************************/}
                           <button
-                            disabled={!actor.isPlaced || (typeof moveModeActorIndex === "number" && moveModeActorIndex !== index) || typeof placeModeActorIndex === "number"}
+                            disabled={!actor.isPlaced
+                              || (typeof moveModeActorIndex   === "number" && moveModeActorIndex !== index)
+                              || (typeof placeModeActorIndex  === "number")
+                              || (battleModeActive && typeof battleModeTurnIndex === "number" && battleModeTurnIndex !== index)}
                             onMouseEnter={()=> {
                               if (typeof placeModeActorIndex !== "number" && typeof moveModeActorIndex !== "number") {
                                 setInfoLayerHover(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
@@ -237,10 +258,40 @@ const Controls = (
                           >
                             <IoMdMove />
                           </button>
-                          {/* <button disabled={!actor.isPlaced}>🗡️</button> */}
+                          {/* <button
+                            disabled={!actor.isPlaced}
+                            onClick={()=> {
+                              setBattleModeActive(!battleModeActive)
+                            }}
+                            >🗡️</button> */}
                         </div>
                       </li>
                     )
+                    const breaker = (
+                      <li className="init-breaker">
+                        <span>
+                          {arr[index].initiative}
+                        </span>
+                      </li>
+                    )
+                    return battleModeActive
+                      ? index === 0
+                        ? (
+                            <>
+                              {breaker}
+                              {li}
+                            </>
+                          )
+                        : arr[index].initiative < arr[index - 1].initiative
+                          ? (
+                              <>
+                                {breaker}
+                                {li}
+                              </>
+                            )
+                          : li
+                      : li
+                      
                   }
                 )
               : <li className="empty">None</li>
@@ -255,16 +306,16 @@ const Controls = (
             <FaRegEdit /> Edit Characters
           </button>
           <button
-            disabled={typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
+            disabled={!hasPlaced || typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
             onClick={() => {
-              setBattleModeActive(!battleModeActive)
-              if (battleModeActive) {
+              const newBattleModeActive = !battleModeActive
+              setBattleModeActive(newBattleModeActive)
+              const sortedActors = sortActorsByInitiative(actors)
+              if (newBattleModeActive) {
+                //turning on
+                setActors(sortedActors)
               } else {
-                setActors(
-                  (prevActors) => {
-                    return sortActorsByInitiative(prevActors)
-                  }
-                )
+                //turning off
               }
             }}
           >
@@ -273,6 +324,39 @@ const Controls = (
               : <><FaExplosion /> Start Combat</>
             }
           </button>
+          {battleModeActive && (
+            <div>
+              <button
+                onClick={() => {
+                  if (typeof battleModeTurnIndex === "number" && battleModeTurnIndex < actors.length) {
+                    const nextPlacedActorIndex = actors.findIndex(
+                      (actor, i) => {
+                        return i > battleModeTurnIndex && actor.isPlaced
+                      }
+                    )
+                    if (nextPlacedActorIndex !== -1) {
+                      setBattleModeTurnIndex(nextPlacedActorIndex)
+                    } else {
+                      const nextPlacedActorIndex = actors.findIndex(
+                        (actor, i) => {
+                          return i <= battleModeTurnIndex && actor.isPlaced
+                        }
+                      )
+                      if (nextPlacedActorIndex !== -1) {
+                        setBattleModeTurnIndex(nextPlacedActorIndex)
+                      } else {
+                        setBattleModeTurnIndex(0)
+                        setBattleModeActive(false)
+                      }
+                    }
+
+                  } else {
+                    setBattleModeTurnIndex(0)
+                  }
+                }}
+              ><FaArrowRight /> End Turn</button>
+            </div>
+          )}
         </div>
       </div>
     </div>

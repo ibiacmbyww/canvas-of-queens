@@ -36,6 +36,8 @@ function App() {
   const [placeMoveActive, setPlaceMoveActive] = useState<boolean>(false)
 
   const [battleModeActive, setBattleModeActive] = useState<boolean>(false)
+  const [battleModeTurnIndex, setBattleModeTurnIndex] = useState<number | undefined>(0) //always starts at zero
+
   const [infoLayerHover, setInfoLayerHover] = useState<JSX.Element | undefined>(undefined)
   const [infoLayerMode, setInfoLayerMode] = useState<JSX.Element | undefined>(undefined)
 
@@ -376,7 +378,10 @@ function App() {
         setBattleModeActive={setBattleModeActive}
         setEditCharactersMenuOpen={setEditCharactersMenuOpen}
         setInfoLayerHover={setInfoLayerHover}
-        setInfoLayerMode={setInfoLayerMode} />
+        setInfoLayerMode={setInfoLayerMode}
+        battleModeTurnIndex={battleModeTurnIndex}
+        setBattleModeTurnIndex={setBattleModeTurnIndex}
+       />
     </div>
   );
 }

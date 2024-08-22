@@ -47,7 +47,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
     )
     return open
       ? (
-          <div className='EditCharactersModal' id="something">
+          <div className='EditCharactersModal'>
             <div className="blocker">
             </div>
             <div className="inner">
@@ -320,6 +320,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                     onClick={(e) => {
                       setTempActors(
                         (prevTempActors) => {
+                          const hp = rollDice(12)
                           const x = [
                             ...prevTempActors,
                             {
@@ -337,7 +338,9 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                               initiative: rollDice(20) + 5, // 5 = initiativeModifier 
                               initiativeModifier: 5,
                               initiativeTiebreaker: 4,
-                              team: 0
+                              team: 0,
+                              hp: hp,
+                              currentHP: hp
                             }
                           ]
                           return x
