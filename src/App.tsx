@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 import bg1 from "./img/bg1.png";
-import './App.scss';
-import Actor from './types/Actor';
-import EditCharactersModal from './components/EditCharactersModal/EditCharactersModal';
-import sortActorsByInitiative from './utils/sortActorsByInitiative';
-import Controls from './components/Controls/Controls';
-import unsortedActors from './data/unsortedActors';
-import teams from './data/teams';
+import "./App.scss";
+import Actor from "./types/Actor";
+import EditCharactersModal from "./components/EditCharactersModal/EditCharactersModal";
+import sortActorsByInitiative from "./utils/sortActorsByInitiative";
+import Controls from "./components/Controls/Controls";
+import unsortedActors from "./data/unsortedActors";
+import teams from "./data/teams";
 function App() {
   const radiansCoefficient = 180 / Math.PI
   const [actors, setActors] = useState<Actor[]>(
@@ -73,16 +73,16 @@ function App() {
   useEffect(
     () => {
       const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'm' || event.key === 'M') {
+        if (event.key === "m" || event.key === "M") {
           setShowControls((s) => {return !s})
         }
       }
 
-      window.addEventListener('keydown', handleKeyDown)
+      window.addEventListener("keydown", handleKeyDown)
 
       // Cleanup the event listener on component unmount
       return () => {
-        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener("keydown", handleKeyDown);
       }
     },
     []
@@ -92,14 +92,14 @@ function App() {
     const element = canvasRef.current;
     if (element) {
       element.addEventListener(
-        'wheel',
+        "wheel",
         wheelEventHandler,
         { passive: false }
       )
     }
     return () => {
       if (element) {
-        element.removeEventListener('wheel', wheelEventHandler);
+        element.removeEventListener("wheel", wheelEventHandler);
       }
     };
   }, [zoomLevel, wheelEventHandler])

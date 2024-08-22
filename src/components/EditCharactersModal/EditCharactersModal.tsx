@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import "./EditCharactersModal.scss"
-import Actor from '../../types/Actor';
-import Colors from '../../types/Colors';
-import { FaCheck, FaDice, FaX } from 'react-icons/fa6';
-import sortActorsByInitiative from '../../utils/sortActorsByInitiative';
-import rollDice from '../../utils/rollDice';
-import teams from '../../data/teams';
-import { TeamNames } from '../../types/Team';
+import Actor from "../../types/Actor";
+import Colors from "../../types/Colors";
+import { FaCheck, FaDice, FaX } from "react-icons/fa6";
+import sortActorsByInitiative from "../../utils/sortActorsByInitiative";
+import rollDice from "../../utils/rollDice";
+import teams from "../../data/teams";
+import { TeamNames } from "../../types/Team";
 
 type Props = {
     // Define your prop types here
@@ -47,7 +47,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
     )
     return open
       ? (
-          <div className='EditCharactersModal'>
+          <div className="EditCharactersModal">
             <div className="blocker">
             </div>
             <div className="inner">
@@ -144,7 +144,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         (tempActor, index) => {
                           return (
                             <li key={tempActor.id} className={`${tempActor.isDeleted ? "is-deleted" : ""}`}>
-                              <span className='blob' style={{background: tempActor.color, borderColor: teams[tempActor.team].color}}></span>
+                              <span className="blob" style={{background: tempActor.color, borderColor: teams[tempActor.team].color}}></span>
                               <div className="attributes-list">
                                 <input type="hidden" value={tempActor.id} name={`actor-id-${index}`} />
                                 <input type="hidden" value={"" + tempActor.isDeleted} name={`actor-deleted-${index}`} />

@@ -108,7 +108,7 @@ const Controls = (
                         }}
                       >
                         <span
-                          className='blob'
+                          className="blob"
                           style={
                             {
                               background: actor.color,
