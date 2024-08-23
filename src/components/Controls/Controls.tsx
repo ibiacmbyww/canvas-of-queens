@@ -6,9 +6,11 @@ import teams from "../../data/teams"
 import { useMemo } from "react"
 import ActorButtons from "../ActorButtons/ActorButtons"
 import action from "./../../img/action.svg"
+import MenuPositions from "../../types/MenuPositions";
 
 type ControlProps =   {
   showControls: boolean,
+  controlsPosition: MenuPositions,
   zoomLevel: number,
   actors: Actor[],
   setActors: React.Dispatch<React.SetStateAction<Actor[]>>,
@@ -30,6 +32,7 @@ type ControlProps =   {
 const Controls = (
   {
     showControls,
+    controlsPosition,
     zoomLevel,
     actors,
     setActors,
@@ -105,7 +108,7 @@ const Controls = (
   }
 
   return (
-    <div className="Controls" style={{display: showControls ? "block" : "none"}}>
+    <div className={`Controls${controlsPosition === MenuPositions.Left ? " left" : " right"}`} style={{display: showControls ? "block" : "none"}}>
       <div className="wrapper">
         {/* {customMessage} */}
         <h3>Map Zoom: {zoomLevel.toFixed(2)}</h3>
@@ -161,11 +164,11 @@ const Controls = (
                           {actor.displayName}
                         </span>
                         <small>{actor.playerName}</small>
-                        {/* <div className="actions">
+                        <div className="actions">
                         <img src={action} />
                         <img src={action} />
                         <img src={action} />
-                        </div> */}
+                        </div>
                         <ActorButtons
                           actor={actor}
                           setActors={setActors}

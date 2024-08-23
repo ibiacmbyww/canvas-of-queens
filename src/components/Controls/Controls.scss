@@ -4,14 +4,22 @@
   $bg-light: #ffdd99;
   position: fixed;
   top: 0;
-  left: 0;
   width: 21vw;
   height: 100vh;
   background: $bg;
   padding: 0 1rem;
-  border-right: 0.25rem solid $bg-dark;
   overflow: scroll;
   z-index: 30;
+
+  &.left {
+    left: 0;
+    border-right: 0.25rem solid $bg-dark;
+  }
+
+  &.right {
+    right: 0;
+    border-left: 0.25rem solid $bg-dark;
+  }
 
   .actors-list-section {
     & > button {
@@ -24,7 +32,7 @@
       li {
         list-style-type: none;
         display: grid;
-        grid-template-columns: 1.75rem max-content min-content 1fr;
+        grid-template-columns: 1.75rem max-content max-content 1fr;
         grid-template-rows: min-content min-content;
         align-items: center;
         gap: 0.5rem;
@@ -107,6 +115,8 @@
         .actions {
           // background-color: blue;
           position: relative;
+
+          text-align: right;
           img {
             transform: translateY(2px) rotate(-45deg);
             max-width: 1rem;

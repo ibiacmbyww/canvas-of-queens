@@ -2,8 +2,9 @@ import { MdPinDrop } from "react-icons/md";
 import { IoMdMove } from "react-icons/io";
 import {Actor} from "../../types/Actor";
 import HPReadout from "../HPReadout/HPReadout";
+import { FaPersonWalkingArrowRight } from "react-icons/fa6";
 import "./ActorButtons.scss"
-
+import {ReactComponent as SprintIcon} from "./../../img/sprint.svg"
 type ActorButtonsProps = {
   actor: Actor,
   setActors: React.Dispatch<React.SetStateAction<Actor[]>>,
@@ -40,6 +41,106 @@ const ActorButtons = (
   return (
     
     <div className="ActorButtons">
+      <span className="small-row">
+        HP
+      </span>
+      <span className="small-row">
+        *
+      </span>
+      <span className="small-row">
+        **
+      </span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      {/* <button
+        disabled={!actor.isPlaced}
+        onClick={()=> {
+          setBattleModeActive(!battleModeActive)
+        }}
+        >🗡️</button> */}
+        
+      <HPReadout
+        hp={actor.hp}
+        currentHP={actor.currentHP}
+        setActors={setActors}
+        index={index}
+        isPlaced={actor.isPlaced} />
+      <div className="buttons-wrapper">
+        {/***********************************MOVE BUTTON***********************************/}
+        <button
+          disabled={!actor.isPlaced
+            || (typeof moveModeActorIndex   === "number" && moveModeActorIndex !== index)
+            || (typeof placeModeActorIndex  === "number")
+            || (battleModeActive && typeof battleModeTurnIndex === "number" && battleModeTurnIndex !== index)}
+          onMouseEnter={()=> {
+            if (typeof placeModeActorIndex !== "number" && typeof moveModeActorIndex !== "number") {
+              setInfoLayerHover(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
+            } else {
+              if (moveModeActorIndex === index) {
+                setInfoLayerMode(<>End Move mode</>)
+              }
+            }
+          }}
+          onMouseLeave={()=> {
+            if (!placeModeActorIndex && !moveModeActorIndex) {
+              setInfoLayerHover(undefined)
+            } else {
+              if (moveModeActorIndex === index) {
+                setInfoLayerMode(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
+              }
+            }
+          }}
+          onClick={(e) => {
+            e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
+            setPlaceMoveActive(false)
+            if (moveModeActorIndex !== index) {
+              setMoveModeActorIndex(index)
+              //swap focus
+              setActors(
+                (prevActors) => {
+                  return prevActors.map(
+                    (prevActor, i) => {
+                      return i === index
+                        ? {
+                          ...prevActor,
+                          moveRadiusFt: battleModeActive
+                            ? prevActor.moveRemaining
+                            : prevActor.moveFt
+                        }
+                        : {
+                          ...prevActor,
+                          moveRadiusFt: undefined
+                        }
+                    }
+                  )
+                }
+              )
+            } else {
+              //end mode
+              setMoveModeActorIndex(undefined)
+              setInfoLayerHover(undefined)
+              setMoveModeMoveTooFar(false) //resets cursor
+              setActors(
+                (prevActors) => {
+                  return prevActors.map(
+                    (prevActor, i) => {
+                      return {
+                        ...prevActor,
+                          moveRadiusFt: undefined
+                      }
+                    }
+                  )
+                }
+              )
+            }
+          }}
+        >
+          <FaPersonWalkingArrowRight />
+        </button>
+        <button><SprintIcon /></button>
+      </div>
       {/***********************************PLACE BUTTON***********************************/}
       <button
         className={`place${typeof placeModeActorIndex === "number" && placeModeActorIndex === index ? " active" : ""}`}
@@ -109,92 +210,6 @@ const ActorButtons = (
           }
         }}
       ><MdPinDrop /></button>
-      
-      {/***********************************MOVE BUTTON***********************************/}
-      <button
-        disabled={!actor.isPlaced
-          || (typeof moveModeActorIndex   === "number" && moveModeActorIndex !== index)
-          || (typeof placeModeActorIndex  === "number")
-          || (battleModeActive && typeof battleModeTurnIndex === "number" && battleModeTurnIndex !== index)}
-        onMouseEnter={()=> {
-          if (typeof placeModeActorIndex !== "number" && typeof moveModeActorIndex !== "number") {
-            setInfoLayerHover(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
-          } else {
-            if (moveModeActorIndex === index) {
-              setInfoLayerMode(<>End Move mode</>)
-            }
-          }
-        }}
-        onMouseLeave={()=> {
-          if (!placeModeActorIndex && !moveModeActorIndex) {
-            setInfoLayerHover(undefined)
-          } else {
-            if (moveModeActorIndex === index) {
-              setInfoLayerMode(<>Move {actor.displayName} (max. {actor.moveFt}ft)</>)
-            }
-          }
-        }}
-        onClick={(e) => {
-          e.nativeEvent.stopImmediatePropagation() //DO NOT REMOVE
-          setPlaceMoveActive(false)
-          if (moveModeActorIndex !== index) {
-            setMoveModeActorIndex(index)
-            //swap focus
-            setActors(
-              (prevActors) => {
-                return prevActors.map(
-                  (prevActor, i) => {
-                    return i === index
-                      ? {
-                        ...prevActor,
-                        moveRadiusFt: battleModeActive
-                          ? prevActor.moveRemaining
-                          : prevActor.moveFt
-                      }
-                      : {
-                        ...prevActor,
-                        moveRadiusFt: undefined
-                      }
-                  }
-                )
-              }
-            )
-          } else {
-            //end mode
-            setMoveModeActorIndex(undefined)
-            setInfoLayerHover(undefined)
-            setMoveModeMoveTooFar(false) //resets cursor
-            setActors(
-              (prevActors) => {
-                return prevActors.map(
-                  (prevActor, i) => {
-                    return {
-                      ...prevActor,
-                        moveRadiusFt: undefined
-                    }
-                  }
-                )
-              }
-            )
-          }
-        }}
-      >
-        <IoMdMove />
-      </button>
-      {/* <button
-        disabled={!actor.isPlaced}
-        onClick={()=> {
-          setBattleModeActive(!battleModeActive)
-        }}
-        >🗡️</button> */}
-        
-        <HPReadout
-          hp={actor.hp}
-          currentHP={actor.currentHP}
-          setActors={setActors}
-          index={index}
-          isPlaced={actor.isPlaced} />
-        <span>Move: {actor.moveRemaining.toFixed(1)}/{actor.moveFt}ft</span>
     </div>
   )
 }

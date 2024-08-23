@@ -13,25 +13,26 @@ type HPReadoutProps = {
 const HPReadout: React.FC<HPReadoutProps> = ({hp, currentHP, setActors, index, isPlaced}) => {
   const cls = useMemo(
     () => {
+      let color = "color "
       const pc = Math.round(100 * (currentHP / hp))
       if (pc > 66) {
-        return "green"
+          color += "green"
       } else {
         if (pc > 33) {
-          return "yellow"
+          color += "yellow"
         } else {
-          return "red"
+          color += "red"
         }
       }
+      return color
     },
     [hp, currentHP]
   )
   return (
     <div className="HPReadout">
-      <span>HP: </span>
       <div>
-        <div>
-          <div style={{width: `${100 * (currentHP / hp)}%`}} className={cls}></div>
+        <div className="backdrop">
+          <div style={{width: `calc((100% + 1rem) * (${currentHP / hp}))`}} className={cls}></div>
         </div>
         <label>
           <input

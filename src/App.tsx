@@ -7,6 +7,8 @@ import sortActorsByInitiative from "./utils/sortActorsByInitiative";
 import Controls from "./components/Controls/Controls";
 import unsortedActors from "./data/unsortedActors";
 import teams from "./data/teams";
+import MenuPositions from "./types/MenuPositions";
+
 function App() {
   const radiansCoefficient = 180 / Math.PI
   const [actors, setActors] = useState<Actor[]>(
@@ -21,6 +23,7 @@ function App() {
   const [minZoomLevel, setMinZoomLevel] = useState<number>(1)
   const [maxZoomLevel, setMaxZoomLevel] = useState<number>(1)
   const [showControls, setShowControls] = useState<boolean>(true)
+  const [controlsPosition, setControlsPosition] = useState<MenuPositions>(MenuPositions.Left)
   const [zoomIncrementBy] = useState<number>(0.05)
   const [editCharactersMenuOpen, setEditCharactersMenuOpen] = useState<boolean>(false)
   const [bg1WidthAtDefaultZoom, setBG1WidthAtDefaultZoom] = useState<number>(0)
@@ -75,8 +78,14 @@ function App() {
   useEffect(
     () => {
       const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === "m" || event.key === "M") {
+        if (event.key.toLocaleLowerCase() === "m") {
           setShowControls((s) => {return !s})
+        }
+        if (event.key.toLocaleLowerCase() === "l") {
+          setControlsPosition(MenuPositions.Left)
+        }
+        if (event.key.toLocaleLowerCase() === "r") {
+          setControlsPosition(MenuPositions.Right)
         }
       }
 
@@ -352,6 +361,7 @@ function App() {
       )}
       <Controls
         showControls={showControls}
+        controlsPosition={controlsPosition}
         zoomLevel={zoomLevel}
         actors={actors}
         setActors={setActors}
