@@ -1,11 +1,11 @@
-import Actor from "../../types/Actor"
-import sortActorsByInitiative from "../../utils/sortActorsByInitiative"
+import {Actor} from "../../types/Actor"
 import { FaBan, FaRegEdit } from "react-icons/fa"
 import { FaArrowRight, FaExplosion } from "react-icons/fa6"
 import "./Controls.scss";
 import teams from "../../data/teams"
 import { useMemo } from "react"
 import ActorButtons from "../ActorButtons/ActorButtons"
+import action from "./../../img/action.svg"
 
 type ControlProps =   {
   showControls: boolean,
@@ -65,11 +65,16 @@ const Controls = (
       const upperLoop = actors.slice(upperListStartsAtIndex)
       const nextPlacedActorIndex = upperLoop.findIndex(
         (actor, i) => {
-          return i >= battleModeTurnIndex && actor.isPlaced
+          return ((i + upperListStartsAtIndex) >= battleModeTurnIndex) && actor.isPlaced
         }
       )
       if (nextPlacedActorIndex !== -1) {
+        setActors(actors.toSpliced(nextPlacedActorIndex, 1, {
+          ...actors[nextPlacedActorIndex],
+          moveRemaining: actors[nextPlacedActorIndex].moveFt
+        }))
         setBattleModeTurnIndex(upperListStartsAtIndex + nextPlacedActorIndex)
+        setMoveModeActorIndex(undefined)
       } else {
         //loop round and check sub-section
         const nextPlacedActorIndex = lowerLoop.findIndex(
@@ -78,17 +83,24 @@ const Controls = (
           }
         )
         if (nextPlacedActorIndex !== -1) {
+          setActors(actors.toSpliced(nextPlacedActorIndex, 1, {
+            ...actors[nextPlacedActorIndex],
+            moveRemaining: actors[nextPlacedActorIndex].moveFt
+          }))
           setBattleModeTurnIndex(nextPlacedActorIndex)
+          setMoveModeActorIndex(undefined)
         } else {
           //combat has ended
           setBattleModeTurnIndex(0)
           setBattleModeActive(false)
+          setMoveModeActorIndex(undefined)
         }
       }
 
     } else {
       //loop
       setBattleModeTurnIndex(0)
+      setMoveModeActorIndex(undefined)
     }
   }
 
@@ -103,7 +115,6 @@ const Controls = (
             {actors.length
               ? actors.map(
                   (actor, index, arr) => {
-                    debugger;
                     const li = (
                       <li
                         className={`${actor.isPlaced ? "" : "not-placed"} ${battleModeActive && typeof battleModeTurnIndex === "number" && battleModeTurnIndex === index ? "is-current-turn" : ""}`}
@@ -150,6 +161,11 @@ const Controls = (
                           {actor.displayName}
                         </span>
                         <small>{actor.playerName}</small>
+                        {/* <div className="actions">
+                        <img src={action} />
+                        <img src={action} />
+                        <img src={action} />
+                        </div> */}
                         <ActorButtons
                           actor={actor}
                           setActors={setActors}
@@ -210,10 +226,10 @@ const Controls = (
             onClick={() => {
               const newBattleModeActive = !battleModeActive
               setBattleModeActive(newBattleModeActive)
-              const sortedActors = sortActorsByInitiative(actors)
-              if (newBattleModeActive) {
-                //turning on
-                setActors(sortedActors)
+              // const sortedActors = sortActorsByInitiative(actors)
+              if (newBattleModeActive && typeof battleModeTurnIndex === "number") {
+                findFirstActorInScene(battleModeTurnIndex)
+                // setActors(sortedActors)
               } else {
                 //turning off
               }
@@ -229,7 +245,6 @@ const Controls = (
           <div>
             <button
               onClick={() => {
-                debugger
                 if (typeof battleModeTurnIndex === "number") {
                   findFirstActorInScene(battleModeTurnIndex + 1)
                 }

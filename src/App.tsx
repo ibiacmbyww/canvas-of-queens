@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import bg1 from "./img/bg1.png";
 import "./App.scss";
-import Actor from "./types/Actor";
+import {Actor} from "./types/Actor";
 import EditCharactersModal from "./components/EditCharactersModal/EditCharactersModal";
 import sortActorsByInitiative from "./utils/sortActorsByInitiative";
 import Controls from "./components/Controls/Controls";
@@ -46,6 +46,8 @@ function App() {
   const bgRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
 
+  
+
   const wheelEventHandler = useCallback(
     (event: Event): void => {
       event.preventDefault();
@@ -80,7 +82,6 @@ function App() {
 
       window.addEventListener("keydown", handleKeyDown)
 
-      // Cleanup the event listener on component unmount
       return () => {
         window.removeEventListener("keydown", handleKeyDown);
       }
@@ -119,52 +120,30 @@ function App() {
       setMinZoomLevel(zoomLevelWhenAllGridColumnsShown)
     }
   }
-  
-  // const bgMouseMove: MouseEventHandler =  (this: Window, ev: MouseEvent) => {
-  //   // if (e.button === 0) {
-  //   //   //left click
-  //   // // debugger;
-  //   // }
-  //   // if (e.button === 1) {
-  //   //   //middle click
-  //   // // debugger;
-  //   // }
-  //   // if (e.button === 2) {
-  //   //   //right click
-  //   // // debugger;
-  //   // }
-  // }
 
   useEffect(
     () => {
 
-      const moveModeUpdateMouseTracking = (event: MouseEvent) => {
+      const moveModeUpdateMouseTracking = (event: MouseEvent): void | number => {
         // event.stopPropagation()
         if (typeof moveModeActorIndex === "number") {
-          const moveRadiusFt = actors[moveModeActorIndex].moveRadiusFt as number
+          const moveFt = actors[moveModeActorIndex].moveFt
+          const moveRemainingFt = actors[moveModeActorIndex].moveRemaining
           const actorPositionX = actors[moveModeActorIndex].posX * zoomLevel
           const actorPositionY = actors[moveModeActorIndex].posY * zoomLevel
           const sA = (window.scrollX + event.x) - actorPositionX
           const sB = (window.scrollY + event.y) - actorPositionY
           const sC = Math.sqrt((sA * sA) + (sB * sB))
           let a = radiansCoefficient * Math.atan2(sB, sA)
+          let remainingMove = battleModeActive
+            ? moveRemainingFt
+            : moveFt
           setMoveModeEX(event.x)
           setMoveModeEY(event.y)
           setMoveModeTriangleSideC(sC)
           setMoveModeAngle(a)
-          setMoveModeMoveTooFar(placeMoveActive ? false : sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel))
-          // setCustomMessage(
-          //   <>
-          //     <div>sC: {sC}</div>
-          //   </>
-          // )
-          // )
-          //     <div>moveRadiusFt: {moveRadiusFt}</div>
-          //     <div>actorPositionX: {actorPositionX}</div>
-          //     <div>actorPositionY: {actorPositionY}</div>
-          //     <div>sA: {sA}</div>
-          //     <div>sB: {sB}</div>
-          //     <div>moveModeMoveTooFar: {sC > ((2.5 + moveRadiusFt) * oneFtInPx * zoomLevel) ? "Too far" : "OK"}</div>
+          setMoveModeMoveTooFar(placeMoveActive ? false : sC > ((2.5 + remainingMove) * oneFtInPx * zoomLevel))
+          return sC
         }
       }
     
@@ -176,11 +155,19 @@ function App() {
                 (prevActor, i) => {
                   if (moveModeActorIndex === i) {
                     //abusing side effects for fun and profit
-                    moveModeUpdateMouseTracking(e)
+                    const newSC = moveModeUpdateMouseTracking(e) as number
+                    const reduceByInFt = Math.abs(((newSC / oneFtInPx) - 2.5) / zoomLevel)
                     return {
                       ...prevActor,
                       posX: (e.x + window.scrollX) / zoomLevel,
-                      posY: (e.y + window.scrollY) / zoomLevel
+                      posY: (e.y + window.scrollY) / zoomLevel,
+                      moveRadiusFt: battleModeActive
+                      ? actors[moveModeActorIndex].moveRemaining - reduceByInFt
+                      : prevActor.moveFt,
+                      moveRemaining: battleModeActive
+                      ? actors[moveModeActorIndex].moveRemaining - reduceByInFt
+                      : prevActor.moveFt
+
                     }
                   }
                   return prevActor
@@ -204,7 +191,7 @@ function App() {
         window.removeEventListener("click", moveModeOnClickHandler)
       }
     },
-    [actors, moveModeActorIndex, moveModeMoveTooFar, oneFtInPx, radiansCoefficient, zoomLevel, placeMoveActive]
+    [actors, moveModeActorIndex, moveModeMoveTooFar, oneFtInPx, radiansCoefficient, zoomLevel, placeMoveActive, battleModeActive]
   )
 
   useEffect(
@@ -274,8 +261,8 @@ function App() {
               className="ghost"
               style={
                 {
-                  left: `${moveModeEX}px`,
-                  top:  `${moveModeEY}px`,
+                  left: `${moveModeEX + window.scrollX}px`,
+                  top:  `${moveModeEY + window.scrollY}px`,
                   width: `${fiveFtInPx * zoomLevel}px`,
                   height: `${fiveFtInPx * zoomLevel}px`,
                 }
@@ -285,7 +272,7 @@ function App() {
                 <span>
                   {
                     parseFloat(
-                        (((-2.5 * zoomLevel) + (moveModeTriangleSideC / oneFtInPx)) / zoomLevel).toFixed(1)
+                        Math.max(0, (((-2.5 * zoomLevel) + (moveModeTriangleSideC / oneFtInPx)) / zoomLevel)).toFixed(1)
                     )
                   }ft</span>
                 }

@@ -1,4 +1,4 @@
-import Actor from "../types/Actor";
+import {Actor} from "../types/Actor";
 import rollDice from "./rollDice";
 
 const sortActorsByInitiative = (actors: Actor[]): Actor[] => {

@@ -9,54 +9,73 @@
   height: 26px;
   min-height: 26px;
   position: relative;
-  & > label {
-    display: block;
-    height: 26px;
-    min-height: 26px;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0.5rem; //matches padding of parent
-    text-align: center;
-    color: white;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
 
-    input {
-      background: transparent;
-      border: none;
-      text-align: right;
-      width: 4rem;
-      height: 26px;
-      color: white;
-      font-size: 1.25rem;
-    }
-  }
   & > div {
-    width: 6rem;
-    height: 26px;
-    min-height: 26px;
-    margin-right: 0.5rem;
-    background-color: #333;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 0.5rem;
+    position: relative;
+    & > label {
+      display: block;
+      // height: 26px;
+      // min-height: 26px;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0.5rem; //matches padding of parent
+      text-align: center;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      padding-bottom: 2px;
 
-    & > div {
-      height: 26px;
-      max-width: 100%;
-
-      &.green {
-        background-color: #07E034;
+      span {
+        position: relative;
+        left: 3px;
+        color: white;
       }
 
-      &.yellow {
-        background-color: #E0AC07;
-      }
-
-      &.red {
-        background-color: #E0001F;
+      input {
+        background: transparent;
+        border: none;
+        text-align: right;
+        width: 3rem;
+        min-height: 24px;
+        color: white;
+        font-size: 1.25rem;
+        outline: 2px solid transparent;
+        padding-right: 0.25rem;
+        padding-bottom: 2px;
+        &:focus {
+          outline: 2px solid white;
+        }
       }
     }
+    & > div {
+      min-width: 5.75rem;
+      height: 26px;
+      min-height: 26px;
+      margin-right: 0.5rem;
+      background-color: #333;
+      & > div {
+        height: 26px;
+        max-width: 100%;
 
+        &.green {
+          background-color: #07E034;
+        }
+
+        &.yellow {
+          background-color: #E0AC07;
+        }
+
+        &.red {
+          background-color: #E0001F;
+        }
+      }
+
+    }
   }
 }

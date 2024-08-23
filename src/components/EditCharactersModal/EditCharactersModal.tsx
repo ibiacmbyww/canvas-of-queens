@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./EditCharactersModal.scss"
-import Actor from "../../types/Actor";
+import {Actor} from "../../types/Actor";
 import Colors from "../../types/Colors";
 import { FaCheck, FaDice, FaX } from "react-icons/fa6";
 import sortActorsByInitiative from "../../utils/sortActorsByInitiative";
@@ -341,6 +341,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                               playerName: "GM",
                               color: Colors.White,
                               moveFt: 25,
+                              moveRemaining: 25,
                               isPlaced: false,
                               posX: 0,
                               posY: 0,

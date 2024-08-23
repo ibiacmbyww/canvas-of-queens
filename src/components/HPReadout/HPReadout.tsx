@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import "./HPReadout.scss"
-import Actor from '../../types/Actor';
+import {Actor} from '../../types/Actor';
 
 type HPReadoutProps = {
   hp: number,
@@ -28,35 +28,40 @@ const HPReadout: React.FC<HPReadoutProps> = ({hp, currentHP, setActors, index, i
   )
   return (
     <div className="HPReadout">
+      <span>HP: </span>
       <div>
-        <div style={{width: `${100 * (currentHP / hp)}%`}} className={cls}></div>
-      </div>
-      <label>
-        <input
-          type="number"
-          min="-1"
-          max="999"
-          disabled={!isPlaced}
-          value={currentHP}
-          onChange={
-            (e)=>{
-              setActors(
-                (prevActors) => {
-                  return prevActors.map(
-                    (prevActor, i) => {
-                      return i === index
-                      ? {
-                          ...prevActor,
-                          currentHP: parseInt(e.target.value)
-                        }
-                      : prevActor
-                    }
-                  )
-                }
-              )
+        <div>
+          <div style={{width: `${100 * (currentHP / hp)}%`}} className={cls}></div>
+        </div>
+        <label>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            min="-1"
+            max="999"
+            disabled={!isPlaced}
+            value={currentHP}
+            onChange={
+              (e)=>{
+                setActors(
+                  (prevActors) => {
+                    return prevActors.map(
+                      (prevActor, i) => {
+                        return i === index
+                        ? {
+                            ...prevActor,
+                            currentHP: parseInt(e.target.value)
+                          }
+                        : prevActor
+                      }
+                    )
+                  }
+                )
+              }
             }
-          }
-        ></input>/{hp}</label>
+          ></input><span>/{hp}</span></label>
+      </div>
     </div>
   )
 };

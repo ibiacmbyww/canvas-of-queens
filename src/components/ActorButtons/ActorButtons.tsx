@@ -1,6 +1,6 @@
 import { MdPinDrop } from "react-icons/md";
 import { IoMdMove } from "react-icons/io";
-import Actor from "../../types/Actor";
+import {Actor} from "../../types/Actor";
 import HPReadout from "../HPReadout/HPReadout";
 import "./ActorButtons.scss"
 
@@ -147,7 +147,9 @@ const ActorButtons = (
                     return i === index
                       ? {
                         ...prevActor,
-                        moveRadiusFt: prevActor.moveFt
+                        moveRadiusFt: battleModeActive
+                          ? prevActor.moveRemaining
+                          : prevActor.moveFt
                       }
                       : {
                         ...prevActor,
@@ -192,6 +194,7 @@ const ActorButtons = (
           setActors={setActors}
           index={index}
           isPlaced={actor.isPlaced} />
+        <span>Move: {actor.moveRemaining.toFixed(1)}/{actor.moveFt}ft</span>
     </div>
   )
 }
