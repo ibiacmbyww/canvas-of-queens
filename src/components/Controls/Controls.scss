@@ -11,6 +11,10 @@
   overflow: scroll;
   z-index: 30;
 
+  table {
+    width: 100%;
+  }
+
   &.left {
     left: 0;
     border-right: 0.25rem solid $bg-dark;
@@ -32,7 +36,7 @@
       li {
         list-style-type: none;
         display: grid;
-        grid-template-columns: 1.75rem max-content max-content 1fr;
+        grid-template-columns: 1.75rem 1fr 4rem;
         grid-template-rows: min-content min-content;
         align-items: center;
         gap: 0.5rem;
@@ -102,19 +106,34 @@
           font-weight: 800;
           font-variant: small-caps;
           letter-spacing: 1px;
-        }
-
-        small {
-          // these 4 styles make the player name the same height as the character name without also making it float a few px off because the font is smaller. Height is keyed to font-size of .name
           display: flex;
-          align-items: flex-end;
-          height: 1.5rem;
-          padding-bottom: 2px; //barf
+          flex-direction: row;
+          align-items: center;
+
+          span {
+            &:first-child {
+              flex: 1 0;
+            }
+            &:last-child {
+              display: block;
+              min-height: 27px;
+              display: flex;
+              align-items: flex-end;
+              font-size: 0.8rem;
+              // line-height: 27px;
+              position: relative;
+              top: -3px;
+              padding-left: 0.5rem;
+              font-weight: 400;
+            }
+          }
         }
 
         .actions {
           // background-color: blue;
           position: relative;
+          width: 4rem;
+          max-width: 4rem;
 
           text-align: right;
           img {
@@ -124,6 +143,11 @@
             // border: 2px solid white;
             // margin-right: -0.25rem;
           }
+        }
+
+        table {
+          grid-column-start: 2;
+          grid-column-end: 5;
         }
       }
     }

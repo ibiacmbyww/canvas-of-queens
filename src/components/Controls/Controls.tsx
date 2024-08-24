@@ -7,6 +7,7 @@ import { useMemo } from "react"
 import ActorButtons from "../ActorButtons/ActorButtons"
 import action from "./../../img/action.svg"
 import MenuPositions from "../../types/MenuPositions";
+import HPReadout from "../HPReadout/HPReadout";
 
 type ControlProps =   {
   showControls: boolean,
@@ -161,13 +162,13 @@ const Controls = (
                               borderColor: (teams[actor.team].color ?? "grey") as string}}
                           ></span>
                         <span className="name">
-                          {actor.displayName}
+                          <span>{actor.displayName}</span>
+                          <span>{actor.playerName}</span>
                         </span>
-                        <small>{actor.playerName}</small>
                         <div className="actions">
-                        <img src={action} />
-                        <img src={action} />
-                        <img src={action} />
+                          <img src={action} />
+                          <img src={action} />
+                          <img src={action} />
                         </div>
                         <ActorButtons
                           actor={actor}
