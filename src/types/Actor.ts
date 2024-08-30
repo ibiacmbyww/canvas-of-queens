@@ -1,5 +1,4 @@
 export type ActorMin = {
-  id: number,
   displayName: string,
   playerName: string,
   posX: number,
@@ -14,6 +13,7 @@ export type ActorMin = {
 }
 
 export type Actor = ActorMin & {
+  id: number,
   moveRemaining: number,
   moveRadiusFt: number | undefined,
   highlighted: boolean,

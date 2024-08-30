@@ -1,5 +1,4 @@
 import { MdPinDrop } from "react-icons/md";
-import { IoMdMove } from "react-icons/io";
 import {Actor} from "../../types/Actor";
 import HPReadout from "../HPReadout/HPReadout";
 import { FaPersonWalkingArrowRight } from "react-icons/fa6";

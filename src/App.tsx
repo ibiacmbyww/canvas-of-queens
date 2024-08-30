@@ -1,19 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import bg1 from "./img/bg1.png";
 import "./App.scss";
 import {Actor} from "./types/Actor";
 import EditCharactersModal from "./components/EditCharactersModal/EditCharactersModal";
 import sortActorsByInitiative from "./utils/sortActorsByInitiative";
 import Controls from "./components/Controls/Controls";
-import unsortedActors from "./data/unsortedActors";
 import teams from "./data/teams";
 import MenuPositions from "./types/MenuPositions";
+import appData from "./data/appData";
 
 function App() {
   const radiansCoefficient = 180 / Math.PI
+  const [missionIndex, setMissionIndex] = useState(0)
+  const [mapIndex, setMapIndex] = useState(0)
   const [actors, setActors] = useState<Actor[]>(
     () => {
-      return sortActorsByInitiative(unsortedActors)
+      return sortActorsByInitiative(appData.missionData[missionIndex].maps[mapIndex].actors)
     }
   )
   
@@ -48,8 +49,22 @@ function App() {
 
   const bgRef = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
+  const [bgImgRef, setBGImgRef] = useState(
+    () => {
+      const img = import(`./data/maps/${appData.missionData[missionIndex].folderString}/${appData.missionData[missionIndex].maps[mapIndex].map.imgFileName}`)
+      //@ts-ignore-next-line
+      return img.default
+    }
+  )      
 
-  
+  useEffect(() => {
+    debugger;
+    (async () => {
+      const img = await import(`./data/maps/${appData.missionData[missionIndex].folderString}/${appData.missionData[missionIndex].maps[mapIndex].map.imgFileName}`)
+      setBGImgRef(img.default)
+    })()
+  },
+  [mapIndex])
 
   const wheelEventHandler = useCallback(
     (event: Event): void => {
@@ -254,7 +269,7 @@ function App() {
       <EditCharactersModal open={editCharactersMenuOpen} data={actors} dataSetter={setActors} map={bgRef} openSetter={setEditCharactersMenuOpen} />
       <img
         alt=""
-        src={bg1}
+        src={bgImgRef}
         ref={bgRef}
         style={
           {
@@ -360,6 +375,11 @@ function App() {
         </div>
       )}
       <Controls
+        mapIndex={mapIndex}
+        setMapIndex={setMapIndex}
+        missionIndex={missionIndex}
+        setMissionIndex={setMissionIndex}
+        allMissionsData={appData.missionData}
         showControls={showControls}
         controlsPosition={controlsPosition}
         zoomLevel={zoomLevel}

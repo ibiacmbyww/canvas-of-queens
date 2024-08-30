@@ -8,11 +8,17 @@ import ActorButtons from "../ActorButtons/ActorButtons"
 import action from "./../../img/action.svg"
 import MenuPositions from "../../types/MenuPositions";
 import HPReadout from "../HPReadout/HPReadout";
+import MissionData from "../../types/MissionData";
 
 type ControlProps =   {
   showControls: boolean,
   controlsPosition: MenuPositions,
   zoomLevel: number,
+  mapIndex: number,
+  setMapIndex: React.Dispatch<React.SetStateAction<number>>,
+  missionIndex: number,
+  setMissionIndex: React.Dispatch<React.SetStateAction<number>>,
+  allMissionsData: MissionData[],
   actors: Actor[],
   setActors: React.Dispatch<React.SetStateAction<Actor[]>>,
   placeModeActorIndex: number | undefined,
@@ -35,6 +41,11 @@ const Controls = (
     showControls,
     controlsPosition,
     zoomLevel,
+    mapIndex,
+    setMapIndex,
+    missionIndex,
+    setMissionIndex,
+    allMissionsData,
     actors,
     setActors,
     placeModeActorIndex,
@@ -113,6 +124,21 @@ const Controls = (
       <div className="wrapper">
         {/* {customMessage} */}
         <h3>Map Zoom: {zoomLevel.toFixed(2)}</h3>
+        <h1>{allMissionsData[missionIndex].displayName}</h1>
+        <select
+          onChange={(e) => {
+            debugger;
+            const newMapIndex = parseInt(e.target.value)
+            setMapIndex(newMapIndex)
+          }}
+        >
+          
+          {allMissionsData[missionIndex].maps.map(
+            (v, i) => {
+              return <option value={i}>{v.map.displayName}</option>
+            }
+          )}
+        </select>
         <div className="actors-list-section">
           {/* <h1>Characters</h1> */}
           <ul>
