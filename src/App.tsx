@@ -18,8 +18,8 @@ function App() {
     }
   )
   
-  const [fiveFtInPx] = useState<number>(70)
-  const [oneFtInPx] = useState<number>(14)
+  const [fiveFtInPx] = useState<number>(100)
+  const [oneFtInPx] = useState<number>(20)
   const [zoomLevel, setZoomLevel] = useState(1)
   const [minZoomLevel, setMinZoomLevel] = useState<number>(1)
   const [maxZoomLevel, setMaxZoomLevel] = useState<number>(1)
@@ -58,13 +58,12 @@ function App() {
   )      
 
   useEffect(() => {
-    debugger;
     (async () => {
       const img = await import(`./data/maps/${appData.missionData[missionIndex].folderString}/${appData.missionData[missionIndex].maps[mapIndex].map.imgFileName}`)
       setBGImgRef(img.default)
     })()
   },
-  [mapIndex])
+  [bgRef, missionIndex, mapIndex])
 
   const wheelEventHandler = useCallback(
     (event: Event): void => {
@@ -129,21 +128,30 @@ function App() {
     };
   }, [zoomLevel, wheelEventHandler])
 
-  const bgLoadedHandler = () => {
-    const element = bgRef.current;
-    if (element) {
-      const windowWidth = window.innerWidth
-      const imgWidth = element.naturalWidth ?? 0
-      setBG1WidthAtDefaultZoom(imgWidth)
-      setZoomLevel(1)
-      const gridColumnsShown = windowWidth / fiveFtInPx;
-      const zoomLevelWhenThreeGridColumnsShown = parseFloat((1/(3/gridColumnsShown)).toPrecision(3))
-      const imgWidthInColumns = imgWidth / fiveFtInPx
-      const zoomLevelWhenAllGridColumnsShown = parseFloat((1/(imgWidthInColumns/gridColumnsShown)).toPrecision(3))
-      setMaxZoomLevel(zoomLevelWhenThreeGridColumnsShown)
-      setMinZoomLevel(zoomLevelWhenAllGridColumnsShown)
-    }
-  }
+  const bgLoadedHandler = useCallback(
+    () => {
+      const element = bgRef.current;
+      if (element) {
+        const windowWidth = window.innerWidth
+        const imgWidth = element.naturalWidth ?? 0
+        setBG1WidthAtDefaultZoom(imgWidth)
+        setZoomLevel(1)
+        const gridColumnsShown = windowWidth / fiveFtInPx;
+        const zoomLevelWhenThreeGridColumnsShown = parseFloat((1/(3/gridColumnsShown)).toPrecision(3))
+        const imgWidthInColumns = imgWidth / fiveFtInPx
+        const zoomLevelWhenAllGridColumnsShown = parseFloat((1/(imgWidthInColumns/gridColumnsShown)).toPrecision(3))
+        setMaxZoomLevel(zoomLevelWhenThreeGridColumnsShown)
+        setMinZoomLevel(zoomLevelWhenAllGridColumnsShown)
+      }
+    },
+    [fiveFtInPx, bgRef]
+  )
+  
+  useEffect(() => {
+    debugger
+    bgLoadedHandler()
+  },
+  [bgRef, bgLoadedHandler, bgImgRef])
 
   useEffect(
     () => {
