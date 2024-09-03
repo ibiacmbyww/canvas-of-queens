@@ -7,6 +7,7 @@ import Controls from "./components/Controls/Controls";
 import teams from "./data/teams";
 import MenuPositions from "./types/MenuPositions";
 import appData from "./data/appData";
+import { EffectRadius } from "./types/EffectRadius";
 
 function App() {
   const radiansCoefficient = 180 / Math.PI
@@ -17,6 +18,7 @@ function App() {
       return sortActorsByInitiative(appData.missionData[missionIndex].maps[mapIndex].actors)
     }
   )
+  const [effectRadiuses, setEffectRadiuses] = useState<EffectRadius[]>([])
   
   const [fiveFtInPx] = useState<number>(100)
   const [oneFtInPx] = useState<number>(20)
@@ -148,7 +150,6 @@ function App() {
   )
   
   useEffect(() => {
-    debugger
     bgLoadedHandler()
   },
   [bgRef, bgLoadedHandler, bgImgRef])
@@ -329,6 +330,7 @@ function App() {
           (actor, index) => {
             return actor.isPlaced
               ? <div
+                  key={`actor-dot-${index}`}
                   className="actor"
                   style={
                     {
@@ -371,6 +373,29 @@ function App() {
               : <></>
           }
         )}
+        {effectRadiuses.map(
+          (effectRadius, index) => {
+            debugger;
+            return (
+              <div
+                className="effect-radius"
+                key={`effect-radius-${index}`}
+                style={
+                  {
+                    left: `${effectRadius.posX * zoomLevel}px`,
+                    top:  `${effectRadius.posY * zoomLevel}px`,
+                    height: `${oneFtInPx * effectRadius.radiusFt * 2 * zoomLevel}px`,
+                    width: `${oneFtInPx * effectRadius.radiusFt * 2 * zoomLevel}px`,
+                    backgroundColor: effectRadius.color
+                  }
+                }
+              >
+                <div className="info">
+                </div>
+              </div>
+            )
+          }
+        )}
       </div>
       {infoLayerHover && (
         <div className="information">
@@ -383,7 +408,6 @@ function App() {
         </div>
       )}
       <Controls
-        mapIndex={mapIndex}
         setMapIndex={setMapIndex}
         missionIndex={missionIndex}
         setMissionIndex={setMissionIndex}
@@ -406,6 +430,7 @@ function App() {
         setInfoLayerMode={setInfoLayerMode}
         battleModeTurnIndex={battleModeTurnIndex}
         setBattleModeTurnIndex={setBattleModeTurnIndex}
+        setEffectRadiuses={setEffectRadiuses}
        />
     </div>
   );

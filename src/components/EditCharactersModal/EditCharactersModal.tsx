@@ -106,7 +106,7 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                         //@ts-ignore-next-line
                         case "actor-current-hp": newKey = "currentHP"; v = parseInt(v); break;
                         //@ts-ignore-next-line
-                        case "actor-hp": newKey = "hp"; debugger;v = parseInt(v); break;
+                        case "actor-hp": newKey = "hp"; v = parseInt(v); break;
                       // const num: number = parseInt(keyChunks.at(-1)?? "0")
                       }
                       outerSan[index] = {
@@ -193,8 +193,8 @@ const EditCharactersModal: React.FC<Props> = ({data, dataSetter, open, map, open
                                 </label>
                                 <select name={`actor-color-${index}`} id={`actor-color-${index}`}>
 
-                                  {Object.values(Colors).map((v) => {
-                                    return <option selected={tempActor.color === v}>{v}</option>
+                                  {Object.values(Colors).map((v, i) => {
+                                    return <option key={`tc-${1}`} selected={tempActor.color === v}>{v}</option>
                                   })}
                                 </select>
                                 <label htmlFor={`actor-movement-${index}`}>

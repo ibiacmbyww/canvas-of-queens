@@ -1,20 +1,20 @@
 import {Actor} from "../../types/Actor"
 import { FaBan, FaRegEdit } from "react-icons/fa"
-import { FaArrowRight, FaExplosion } from "react-icons/fa6"
+import { FaArrowRight, FaArrowRightToBracket, FaExplosion, FaGun, FaPlus } from "react-icons/fa6"
 import "./Controls.scss";
 import teams from "../../data/teams"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import ActorButtons from "../ActorButtons/ActorButtons"
 import action from "./../../img/action.svg"
 import MenuPositions from "../../types/MenuPositions";
-import HPReadout from "../HPReadout/HPReadout";
 import MissionData from "../../types/MissionData";
+import { EffectRadius } from "../../types/EffectRadius";
+import Colors from "../../types/Colors";
 
 type ControlProps =   {
   showControls: boolean,
   controlsPosition: MenuPositions,
   zoomLevel: number,
-  mapIndex: number,
   setMapIndex: React.Dispatch<React.SetStateAction<number>>,
   missionIndex: number,
   setMissionIndex: React.Dispatch<React.SetStateAction<number>>,
@@ -33,7 +33,8 @@ type ControlProps =   {
   setInfoLayerHover: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>
   setInfoLayerMode: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>
   battleModeTurnIndex: number | undefined,
-  setBattleModeTurnIndex: React.Dispatch<React.SetStateAction<number | undefined>>
+  setBattleModeTurnIndex: React.Dispatch<React.SetStateAction<number | undefined>>,
+  setEffectRadiuses: React.Dispatch<React.SetStateAction<EffectRadius[]>>
 }
 
 const Controls = (
@@ -41,7 +42,6 @@ const Controls = (
     showControls,
     controlsPosition,
     zoomLevel,
-    mapIndex,
     setMapIndex,
     missionIndex,
     setMissionIndex,
@@ -60,9 +60,12 @@ const Controls = (
     setInfoLayerHover,
     setInfoLayerMode,
     battleModeTurnIndex,
-    setBattleModeTurnIndex
+    setBattleModeTurnIndex,
+    setEffectRadiuses
   }: ControlProps
 ) => {
+  const [addEffectsModalOpen, setAddEffectsModalOpen] = useState<boolean>(false)
+  const [addEffectsModalDescription, ] = useState<string>("")
   const hasPlaced = useMemo(
     () => {
       return actors.findIndex(
@@ -127,7 +130,6 @@ const Controls = (
         <h1>{allMissionsData[missionIndex].displayName}</h1>
         <select
           onChange={(e) => {
-            debugger;
             const newMapIndex = parseInt(e.target.value)
             setMapIndex(newMapIndex)
           }}
@@ -135,7 +137,7 @@ const Controls = (
           
           {allMissionsData[missionIndex].maps.map(
             (v, i) => {
-              return <option value={i}>{v.map.displayName}</option>
+              return <option key={`eff-display-name=${i}`} value={i}>{v.map.displayName}</option>
             }
           )}
         </select>
@@ -148,7 +150,7 @@ const Controls = (
                     const li = (
                       <li
                         className={`${actor.isPlaced ? "" : "not-placed"} ${battleModeActive && typeof battleModeTurnIndex === "number" && battleModeTurnIndex === index ? "is-current-turn" : ""}`}
-                        key={actor.id}
+                        key={`actors-list-${actor.id}`}
                         onMouseEnter={()=> {
                           if (actor.isPlaced) {
                             setActors((prevActors) => {
@@ -251,37 +253,95 @@ const Controls = (
           >
             <FaRegEdit /> Edit Characters
           </button>
-          <button
-            disabled={!hasPlaced || typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
-            onClick={() => {
-              const newBattleModeActive = !battleModeActive
-              setBattleModeActive(newBattleModeActive)
-              // const sortedActors = sortActorsByInitiative(actors)
-              if (newBattleModeActive && typeof battleModeTurnIndex === "number") {
-                findFirstActorInScene(battleModeTurnIndex)
-                // setActors(sortedActors)
-              } else {
-                //turning off
-              }
-            }}
-          >
-            {battleModeActive
-              ? <><FaBan /> End Combat</>
-              : <><FaExplosion /> Start Combat</>
-            }
-          </button>
-        </div>
-        {battleModeActive && (
-          <div>
+          <div className="end-controls">
             <button
+              disabled={!hasPlaced || typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
               onClick={() => {
-                if (typeof battleModeTurnIndex === "number") {
-                  findFirstActorInScene(battleModeTurnIndex + 1)
+                const newBattleModeActive = !battleModeActive
+                setBattleModeActive(newBattleModeActive)
+                // const sortedActors = sortActorsByInitiative(actors)
+                if (newBattleModeActive && typeof battleModeTurnIndex === "number") {
+                  findFirstActorInScene(battleModeTurnIndex)
+                  // setActors(sortedActors)
+                } else {
+                  //turning off
                 }
               }}
-            ><FaArrowRight /> End Turn</button>
+            >
+              {battleModeActive
+                ? <><FaBan /> End Combat</>
+                : <><FaGun /> Start Combat</>
+              }
+            </button>
+            {battleModeActive && (
+              <button
+                onClick={() => {
+                  if (typeof battleModeTurnIndex === "number") {
+                    findFirstActorInScene(battleModeTurnIndex + 1)
+                  }
+                }}
+              ><FaArrowRightToBracket /> End Turn</button>
+            )}
           </div>
-        )}
+          <div className="effects-wrapper">
+            <button
+              disabled={!hasPlaced || typeof moveModeActorIndex === "number" || typeof placeModeActorIndex === "number"}
+              onClick={() => {
+                setAddEffectsModalOpen((v) => {return !v})
+              }}
+            >
+              <><FaExplosion /> Add effect <FaArrowRight /></>
+            </button>
+            <form
+              className={`effects-menu${controlsPosition === MenuPositions.Left ? " left" : " right"}`}
+              name="effects-0"
+              id="effects-0"
+              onSubmit={
+                (e) => {
+                  e.preventDefault()
+                  debugger;
+                  
+                  const fd = new FormData(e.currentTarget)
+                  const formsJSON = Object.fromEntries(fd.entries())
+                  setEffectRadiuses(
+                    (oldEffectRadiuses) => {
+                      const newEffect: EffectRadius = {
+                        name: formsJSON["eff-name"] as string,
+                        description: formsJSON["eff-desc"] as string,
+                        posX: parseInt(formsJSON["eff-posx"] as string),
+                        posY: parseInt(formsJSON["eff-posy"] as string),
+                        radiusFt: parseInt(formsJSON["eff-rad"] as string),
+                        color: formsJSON["eff-color"] as string
+                      }
+                      return [
+                        ...oldEffectRadiuses,
+                        newEffect
+                      ]
+                    }
+                  )
+                }
+              }
+            >
+              <label htmlFor="eff-name">Name: </label><input type="text" id="eff-name" name="eff-name" />
+              <label htmlFor="eff-desc">Description: </label><textarea id="eff-desc" name="eff-desc" />
+              <label htmlFor="eff-posx">X position: </label><input type="number" min={5} max={600} defaultValue={10} step={5} id="eff-posx" name="eff-posx" />
+              <label htmlFor="eff-posy">Y position: </label><input type="number" min={5} max={600} defaultValue={10} step={5} id="eff-posy" name="eff-posy" />
+              <label htmlFor="eff-rad">Radius (ft): </label><input type="number" min={5} max={600} defaultValue={10} step={5} id="eff-rad" name="eff-rad" />
+              <label htmlFor="eff-color">Color: </label>
+              <select id="eff-color" name="eff-color">
+                {Object.values(Colors).map((v) => {
+                  return <option>{v}</option>
+                })}
+              </select>
+              <button
+                type="submit"
+                form="effects-0"
+              >
+                Add <FaPlus />
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   )
