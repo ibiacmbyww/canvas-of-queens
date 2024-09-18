@@ -18,9 +18,9 @@ const unsortedPlayerActorData: ActorMin[] = [
     hp: 40,
   },
   {
-    displayName: "Goblin Inventor",
+    displayName: "Kiinda",
     playerName: "Eowyn",
-    color: Colors.Blue,
+    color: Colors.Green,
     moveFt: 25,
     isPlaced: true,
     posX: 2800,
@@ -33,7 +33,7 @@ const unsortedPlayerActorData: ActorMin[] = [
   {
     displayName: "Malina",
     playerName: "Ash",
-    color: Colors.Green,
+    color: Colors.Blue,
     moveFt: 25,
     isPlaced: true,
     posX: 2800,
