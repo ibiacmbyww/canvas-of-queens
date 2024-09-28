@@ -9,6 +9,7 @@ import MenuPositions from "./types/MenuPositions";
 import appData from "./data/appData";
 import { EffectRadius } from "./types/EffectRadius";
 import ConditionScreen from "./components/ConditionScreen/ConditionScreen";
+import BesemmerScreen from "./components/BesemmerScreen/BesemmerScreen";
 
 function App() {
   const radiansCoefficient = 180 / Math.PI
@@ -43,8 +44,11 @@ function App() {
   const [placeMoveActive, setPlaceMoveActive] = useState<boolean>(false)
 
   const [battleModeActive, setBattleModeActive] = useState<boolean>(false)
-  const [showPlaceholder, setShowPlaceholder] = useState<boolean>(false)  
   const [battleModeTurnIndex, setBattleModeTurnIndex] = useState<number | undefined>(0) //always starts at zero
+  
+  const [showConditionsScreen, setShowConditionsScreen] = useState<boolean>(false)
+  
+  const [showBessemerScreen, setShowBessemerScreen] = useState<boolean>(true)
 
   const [infoLayerHover, setInfoLayerHover] = useState<JSX.Element | undefined>(undefined)
   const [infoLayerMode, setInfoLayerMode] = useState<JSX.Element | undefined>(undefined)
@@ -106,7 +110,10 @@ function App() {
           setControlsPosition(MenuPositions.Right)
         }
         if (event.key.toLocaleLowerCase() === "c") {
-          setShowPlaceholder(!showPlaceholder)
+          setShowConditionsScreen(!showConditionsScreen)
+        }
+        if (event.key.toLocaleLowerCase() === "b") {
+          setShowBessemerScreen(!showBessemerScreen)
         }
       }
 
@@ -280,7 +287,8 @@ function App() {
 
   return (
     <div className="App">
-      <ConditionScreen open={showPlaceholder} setOpen={setShowPlaceholder} />
+      <ConditionScreen open={showConditionsScreen} setOpen={setShowConditionsScreen} />
+      <BesemmerScreen open={showBessemerScreen} setOpen={setShowBessemerScreen} />
       <EditCharactersModal open={editCharactersMenuOpen} data={actors} dataSetter={setActors} map={bgRef} openSetter={setEditCharactersMenuOpen} />
       <img
         alt=""

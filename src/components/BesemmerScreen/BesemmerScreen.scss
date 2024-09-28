@@ -1,0 +1,132 @@
+.BesemmerScreen {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  display: none;
+  grid-template-columns: 100vw;
+  grid-template-rows: 100vh;
+  // font-size: 14px;
+  &.open {
+    display: grid;
+    z-index: 99999;
+  }
+
+  .bg-layer {
+    background: url("./../../img/bessemer.png");
+    background-size: cover;
+    filter: blur(4px);
+    grid-row-start: 1 !important;
+    grid-column-start: 1 !important;
+    z-index: 1;
+  }
+
+  .menu {
+    grid-row-start: 1 !important;
+    grid-column-start: 1 !important;
+    z-index: 2;
+
+    .controls {
+      padding: 4vh 0;
+      display: flex;
+      justify-content: space-between;
+  
+      .form {
+        display: flex;
+        align-items: center;
+        & > label {
+          display: flex;
+          justify-content: center;
+          font-size: 2rem;
+          padding: 0.5rem 2rem;
+        }
+        
+        & > ul.tabs {
+          padding: 0;
+          margin: 0;
+          display: flex;
+          width: 100vw;
+          justify-content: center;
+          align-items: center;
+          list-style-type: none;
+          
+          & > li {
+            background: radial-gradient(#192a3c, #161f26, #171e24, #20272d, #192026);
+            margin-left: 4px;
+            border-width: 4px;
+            border-style: solid;
+            border-color: rgb(237,128,52);
+  
+            &.selected {
+              button {
+                text-decoration: underline;
+              }
+            }
+  
+            button {
+              padding: 1rem 2rem;
+              color: #faf9f6;
+            }
+          }
+        }
+      }
+  
+      button {
+        background-color: transparent;
+        border: none;
+        padding: 1rem 1rem;
+        font-size: 2rem;
+        cursor: pointer;
+      }
+    }
+
+    $item-height: 75px;
+    $h: 78.5vh;
+    & > ul.list {
+      padding: 1rem;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(5, $item-height);
+      gap: 8vh 2vw;
+      font-size: 14px;
+      list-style-type: none;
+      height: $h;
+      min-height: $h;
+      max-height: $h;
+      // padding: 1rem;
+      // border-top: 2px solid black;
+      // border-left: 2px solid black;
+        background: radial-gradient(#192a3c, #161f26, #171e24, #20272d, #192026);
+        border-width: 4px;
+        border-style: solid;
+        border-color: rgb(237,128,52);
+        color: #faf9f6;
+
+      & > li {
+        // border: 2px solid black;
+        // border-left: 2px solid black;
+        // border-top: 0;
+        padding: 0;
+        break-inside: avoid-column;
+        background: radial-gradient(#192a3c, #161f26, #171e24, #20272d, #192026);
+        border-width: 4px;
+        border-style: solid;
+        border-color: rgb(237,128,52);
+        display: flex;
+
+        // & > *:last-child
+        & > button {
+          margin: 0;
+          background-color: transparent;
+          color: #faf9f6;
+          text-align: center;
+          font-size: 1rem;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
